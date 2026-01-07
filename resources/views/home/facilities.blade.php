@@ -1,0 +1,539 @@
+@extends('layouts.home')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/facilities.css') }}">
+@endpush
+
+@section('content')
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">FACILITIES</h1>
+        <p class="hero-description">
+            Metinca Prima is well supported with standout facilities and talented manpower. To ensure reliable
+            production and timely delivery of good quality products, making us highly competitive against top
+            rivals.
+        </p>
+    </div>
+</section>
+
+<!-- Content Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="accordion" id="facilitiesAccordion">
+
+            <!-- Wax Injection -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#waxInjection">
+                        <i class="bi bi-fire me-3"></i> Wax Injection & Assembling
+                    </button>
+                </h2>
+                <div id="waxInjection" class="accordion-collapse collapse show"
+                    data-bs-parent="#facilitiesAccordion">
+                    <div class="accordion-body">
+                        <p class="mb-4">Various types of wax pattern injections machines offering a range of
+                            capability; from a few grams, 10 kilograms, and up to 83 kilograms of steel casting.</p>
+                        {{-- <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Small Scale</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Few grams capacity</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> High precision</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Medium Scale</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Up to 10 kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Versatile production</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Large Scale</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Up to 83 kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Heavy-duty casting</li>
+                                </ul>
+                            </div>
+                        </div> --}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mouldRoomArea">
+                        <i class="bi bi-bounding-box me-3"></i> Mould Room Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="mouldRoomArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            <!-- Melting Area -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#melting">
+                        <i class="bi bi-thermometer-half me-3"></i> Melting Area & Furnace
+                    </button>
+                </h2>
+                <div id="melting" class="accordion-collapse collapse" data-bs-parent="#facilitiesAccordion">
+                    <div class="accordion-body">
+                        <ul>
+                            <li><strong>Steam Dewaxing Machine</strong></li>
+                            <li>
+                                <strong>Sintering Oven</strong>.
+                                5 units of sintering oven capable up to 1200 °C :
+                                <ul>
+                                    <li>1 unit of sintering oven heat,generated by heating element.</li>
+                                    <li>4 units of sintering oven heat,generated by natural gas.</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <strong>Furnace</strong>.
+                                <ul>
+                                    <li>2 Units of 30 Kg Rollover Furnace, 100 KVA</li>
+                                    <li>1 Unit of 100 Kg Double Axis Tilt Furnace, 130 KVA</li>
+                                    <li>1 Unit of 150 Kg Double Axis Tilt Furnace, 200 KVA</li>
+                                    <li>1 Unit of 250 Kg Double Axis Tilt Furnace, 200 KVA</li>
+                                    <li>1 Unit of 300 Kg Electrically Heat Resistance Bale Out Furnace</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        {{-- <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Rollover Furnace</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 2 Units of 30 Kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 100 KVA</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Double Axis Tilt (100Kg)</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1 Unit of 100 Kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 130 KVA</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Double Axis Tilt (150Kg)</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1 Unit of 150 Kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 200 KVA</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Double Axis Tilt (250Kg)</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1 Unit of 250 Kg</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 200 KVA</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-fire"></i></div>
+                                <div class="facility-title">Bale Out Furnace</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 300 Kg capacity</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Electrically Heat Resistance</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image"><i class="bi bi-thermometer-half"></i></div>
+                                <div class="facility-title">Sintering Oven</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 5 units up to 1200°C</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 1 heating element, 4 natural gas
+                                    </li>
+                                </ul>
+                            </div>
+                        </div> --}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#shotblast">
+                        <i class="bi bi-crosshair me-3"></i> Shot Blast & Hand Blast
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="shotblast" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        <ul>
+                            <li>4 Units of Shotblast Machine Capacity up to 500 Kg</li>
+                            <li>6 Units of Handblasting Machine</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Cut Off Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#cutOffArea">
+                        <i class="bi bi-crop me-3"></i> Cut Off Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="cutOffArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            {{-- Finishing Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#finishingArea">
+                        <i class="bi bi-easel me-3"></i> Finishing Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="finishingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            <!-- Machining -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#machining">
+                        <i class="bi bi-cpu me-3"></i> Machining
+                    </button>
+                </h2>
+                <div id="machining" class="accordion-collapse collapse" data-bs-parent="#facilitiesAccordion">
+                    <div class="accordion-body">
+                        <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/lathe-machining-center.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Lathe Machining Center SK 50P</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1500mm length</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/lathe-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Lathe Machine SPT 660</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 2000mm length</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/lathe-machine-spt-2060.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Lathe Machine SPT 2060</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1500mm length</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/cnc-horizontal-milling-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">CNC Horizontal Milling</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> X=500, Y=500, Z=500mm</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/lathe-machine-spt-1640.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Lathe Machine SP 1640 T</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1000mm length</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/turning-centre-machine-st-30.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Turning Centre ST-30</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Ø 533mm, Z: 660mm</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/cnc-horizontal-borring-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">CNC Horizontal Boring</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> X=1000, Y=500, Z=500mm</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/turning-centre-machine-st-10.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Turning Centre ST-10</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Ø 356mm, Z: 356mm</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/cnc-feeler-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">CNC Feeler Machine</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 1800 x 600mm</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/mori-seiki.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">MORI SEIKI</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> High precision machining</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/machining/mazak-v-15n.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Mazak V-15N</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Advanced CNC system</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quality Control -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#qc">
+                        <i class="bi bi-patch-check-fill me-3"></i> Quality Control
+                    </button>
+                </h2>
+                <div id="qc" class="accordion-collapse collapse" data-bs-parent="#facilitiesAccordion">
+                    <div class="accordion-body">
+                        <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/cmm-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">CMM Machine</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Coordinate Measuring</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 3D precision measurement</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/hardness-tester.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Hardness Tester</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Material hardness testing</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/spectrometer.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Spectrometer</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Material composition analysis</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/tensile-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Tensile Machine</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Strength testing</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/microscope-optic.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Microscope Optic</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Visual inspection</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/impact-machine.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Impact Machine</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Impact resistance testing</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/x-ray-machine-320kv.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">X-Ray Machine 320 KV</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Internal defect detection</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/quality-control/laser-welding.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Laser Welding</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> Precision welding</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Sand Mixing Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sandMixingArea">
+                        <i class="bi bi-eject me-3"></i> Sand Mixing Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="sandMixingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/sand-mixing-area/continous-mixer.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Continous mixer</div>
+                                <ul class="facility-specs">
+                                    <li><i class="bi bi-check-circle-fill"></i> 3T/Hour</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> 20-40T/Hour</li>
+                                </ul>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/sand-mixing-area/compacting-table.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Compacting table</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Coating Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#coatingArea">
+                        <i class="bi bi-front me-3"></i> Coating Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="coatingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        <div class="facility-grid">
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/coating-area/coating-area-1.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Coating</div>
+                            </div>
+                            <div class="facility-card">
+                                <div class="facility-image">
+                                    <img src="{{ asset('images/facilities/coating-area/coating-area-2.avif') }}" alt="">
+                                </div>
+                                <div class="facility-title">Coating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Setting Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#settingArea">
+                        <i class="bi bi-gear-wide-connected me-3"></i> Setting Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="settingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        <ul>
+                            <li>Setting capacity up to 2 ton.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Painting Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#paintingArea">
+                        <i class="bi bi-fullscreen me-3"></i> Painting Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="paintingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            {{-- Assembling Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#assemblingArea">
+                        <i class="bi bi-fullscreen-exit me-3"></i> Assembling Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="assemblingArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        <ul>
+                            <li><strong>Non Destructive Area (NDT)</strong></li>
+                            <li><strong>Magnetic Particle Inspection</strong></li>
+                            <li><strong>Hydro Test</strong></li>
+                            <li><strong>Penetrant Test</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Inspection Area --}}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#inspectionArea">
+                        <i class="bi bi-heptagon-half me-3"></i> Inspection Area
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="inspectionArea" data-bs-parent="#facilitiesAccordion" >
+                    <div class="accordion-body">
+                        -
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@endsection
