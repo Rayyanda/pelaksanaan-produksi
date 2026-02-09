@@ -1,8 +1,6 @@
 @extends('layouts.app')
-
 @section('title','Data Divisions')
 @section('page-title','List of Divisions')
-
 @section('content')
 <section class="section">
     <div class="row">
@@ -39,7 +37,7 @@
                                     <form action="{{ route('divisions.destroy', $division->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                        <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Are you sure you want to delete this division?')">Delete</button>
                                     </form>
                                 </td>
@@ -53,3 +51,4 @@
     </div>
 </section>
 @endsection
+

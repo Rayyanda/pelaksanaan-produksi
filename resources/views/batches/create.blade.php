@@ -55,7 +55,7 @@
                             <form action="{{ route('batches.store') }}" method="POST" id="batchForm">
                                 @csrf
 
-                                <div class="form-group mb-4">
+                                {{-- <div class="form-group mb-4">
                                     <label for="batch_number" class="form-label">
                                         Batch Number <span class="text-danger">*</span>
                                     </label>
@@ -66,7 +66,7 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                     <small class="text-muted">Unique batch identifier</small>
-                                </div>
+                                </div> --}}
 
                                 <div class="row">
                                     <div class="col-md-6">
@@ -76,8 +76,7 @@
                                             </label>
                                             <select
                                                 class="form-select choices @error('po_production_id') is-invalid @enderror"
-                                                id="po_production_id" name="po_production_id" required
-                                                onchange="loadPODetails()">
+                                                id="po_production_id" name="po_production_id" required>
                                                 <option value="">Select PO</option>
                                                 @foreach ($poProductions as $po)
                                                     <option value="{{ $po->id }}" data-quantity="{{ $po->quantity }}"
@@ -323,40 +322,124 @@
             minDate: 'today'
         });
 
-        // Load PO Details
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const poSelect = document.getElementById('po_production_id');
+
+            poSelect.addEventListener('change', loadPODetails);
+
+        });
+
         function loadPODetails() {
+
             const select = document.getElementById('po_production_id');
-            const selectedOption = select.options[select.selectedIndex];
+            const value = select.value;
             const container = document.getElementById('poDetailsCard');
 
-            if (!select.value) {
-                container.innerHTML =
-                    '<p class="text-muted text-center"><i class="bi bi-info-circle"></i><br>Select a PO to view details</p>';
+            if (!value) {
+                container.innerHTML = `
+            <p class="text-muted text-center">
+                <i class="bi bi-info-circle"></i><br>
+                Select a PO to view details
+            </p>`;
                 return;
             }
 
-            const quantity = selectedOption.dataset.quantity;
-            const dueDate = selectedOption.dataset.dueDate;
+            // ⬇️ Ambil OPTION ASLI, bukan DOM hasil Choices.js
+            const option = select.querySelector(`option[value="${value}"]`);
 
-            let html = '<div class="mb-3"><small class="text-muted">PO Number</small><br><strong>' + selectedOption.text +
-                '</strong></div>';
-            html += '<div class="mb-3"><small class="text-muted">PO Quantity</small><br><strong>' + new Intl.NumberFormat()
-                .format(quantity) + ' pcs</strong></div>';
-
-            if (dueDate) {
-                html += '<div class="mb-3"><small class="text-muted">Due Date</small><br><strong>' + dueDate +
-                    '</strong></div>';
-
-                // Auto-fill target completed
-                document.getElementById('target_completed').value = dueDate;
-                document.getElementById('target_completed')._flatpickr.setDate(dueDate);
+            if (!option) {
+                console.warn('Option not found for value:', value);
+                return;
             }
 
-            // Suggest quantity (same as PO)
-            document.getElementById('quantity').value = quantity;
+            fetch(`/api/po/${value}/detail`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(data);
+                        const newQty = data.data.quantity;
+                        const newDueDate = data.data.due_date;
+                        let html = `
+                <div class="mb-3">
+                    <small class="text-muted">PO Number</small><br>
+                    <strong>${option.text}</strong>
+                </div>
 
-            container.innerHTML = html;
+                <div class="mb-3">
+                    <small class="text-muted">PO Quantity</small><br>
+                    <strong>${new Intl.NumberFormat().format(newQty)} pcs</strong>
+                </div>
+            `;
+
+                        if (newDueDate) {
+                            html += `
+                    <div class="mb-3">
+                        <small class="text-muted">Due Date</small><br>
+                        <strong>${newDueDate}</strong>
+                    </div>
+                `;
+
+                            // Auto-fill target completed
+                            const targetCompleted = document.getElementById('target_completed');
+                            targetCompleted.value = newDueDate;
+
+                            if (targetCompleted._flatpickr) {
+                                targetCompleted._flatpickr.setDate(newDueDate);
+                            }
+                        }
+
+                        // Suggest quantity
+                        document.getElementById('quantity').value = newQty;
+
+                        container.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                });
+
         }
+
+        // Load PO Details
+        // function loadPODetails() {
+        //     const select = document.getElementById('po_production_id');
+        //     const value = select.value;
+        //     // const selectedOption = select.options[select.selectedIndex];
+        //     const selectedOption = select.querySelector(`option[value="${value}"]`);
+        //     const container = document.getElementById('poDetailsCard');
+        //     console.log('yg di select : ' + select.selectedIndex);
+        //     console.log(selectedOption.dataset);
+
+        //     if (!select.value) {
+        //         container.innerHTML =
+        //             '<p class="text-muted text-center"><i class="bi bi-info-circle"></i><br>Select a PO to view details</p>';
+        //         return;
+        //     }
+
+        //     const quantity = selectedOption.dataset.quantity;
+        //     const dueDate = selectedOption.dataset.dueDate;
+
+        //     let html = '<div class="mb-3"><small class="text-muted">PO Number</small><br><strong>' + selectedOption.text +
+        //         '</strong></div>';
+        //     html += '<div class="mb-3"><small class="text-muted">PO Quantity</small><br><strong>' + new Intl.NumberFormat()
+        //         .format(quantity) + ' pcs</strong></div>';
+
+        //     if (dueDate) {
+        //         html += '<div class="mb-3"><small class="text-muted">Due Date</small><br><strong>' + dueDate +
+        //             '</strong></div>';
+
+        //         // Auto-fill target completed
+        //         document.getElementById('target_completed').value = dueDate;
+        //         document.getElementById('target_completed')._flatpickr.setDate(dueDate);
+        //     }
+
+        //     // Suggest quantity (same as PO)
+        //     document.getElementById('quantity').value = quantity;
+
+        //     container.innerHTML = html;
+        // }
 
         // Load Part Operations
         function loadPartOperations() {

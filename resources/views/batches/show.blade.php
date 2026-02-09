@@ -113,15 +113,19 @@
                             <i class="bi bi-box-seam"></i> {{ $batch->batch_number }}
                         </h2>
                         <div class="row">
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <small class="opacity-75">PO Number</small>
                                 <h5>{{ $batch->poProduction->po_number }}</h5>
                             </div>
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <small class="opacity-75">Part Number</small>
                                 <h5>{{ $batch->partInternal->part_number }}</h5>
                             </div>
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
+                                <small class="opacity-75">Drawing Number</small>
+                                <h5>{{ $batch->drawing_number }}</h5>
+                            </div>
+                            <div class="col-md-3 mb-2">
                                 <small class="opacity-75">Quantity</small>
                                 <h5>{{ number_format($batch->quantity) }} pcs</h5>
                             </div>

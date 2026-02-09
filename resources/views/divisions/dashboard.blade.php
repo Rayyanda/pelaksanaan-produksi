@@ -179,6 +179,7 @@
                                                     @elseif($wip->status == 'in_progress')
                                                         <span class="badge bg-primary">In Progress</span>
                                                     @endif
+                                                    <span class="text-muted">{{ \Carbon\Carbon::parse($wip->batch->target_completed)->diffForHumans() }}</span>
                                                 </div>
                                             </div>
 
@@ -214,6 +215,9 @@
                                                         <i class="bi bi-play"></i> Start Quality Check
                                                     </button>
                                                 @elseif($wip->status == 'in_progress')
+                                                    <button type="button" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-exclamation"></i> Rework
+                                                    </button>
                                                     <button class="btn btn-success btn-sm" onclick="moveToProcess({{ $wip->id }})">
                                                         <i class="bi bi-arrow-right"></i> Move to Process
                                                     </button>
@@ -255,6 +259,7 @@
                                                     @elseif($wip->status == 'in_progress')
                                                         <span class="badge bg-primary">In Progress</span>
                                                     @endif
+                                                     <span class="text-muted">{{ \Carbon\Carbon::parse($wip->batch->target_completed)->diffForHumans() }}</span>
                                                 </div>
                                             </div>
 

@@ -208,4 +208,20 @@ class Batch extends Model
 
         return now()->isAfter($this->target_completed);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+
+            if (empty($model->batch_number)) {
+
+                $datePart = now()->format('dmY'); // tglblnthn
+                $randomPart = str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+
+                $model->batch_number = $datePart . '-' . $randomPart;
+            }
+        });
+    }
 }

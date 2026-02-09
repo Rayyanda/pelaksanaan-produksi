@@ -3,10 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PartOperationController;
+use App\Http\Controllers\PoProductionController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('po/{poId}/detail',[PoProductionController::class,'getDetail'])->name('po-productions.getDetail');
 
 Route::prefix('part-operations')->name('api.part-operations.')->group(function () {
 

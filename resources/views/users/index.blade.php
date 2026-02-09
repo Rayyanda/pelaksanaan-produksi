@@ -163,8 +163,7 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover" id="usersTable">
-                        <thead>
-                            <tr>
+                        <thead><tr>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
@@ -194,30 +193,14 @@
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                    @if($user->role == 'admin')
-                                        <span class="badge bg-danger">
-                                            <i class="bi bi-shield-fill-check"></i> Admin
-                                        </span>
-                                    @elseif($user->role == 'ppc')
-                                        <span class="badge bg-primary">
-                                            <i class="bi bi-clipboard-data"></i> PPC
-                                        </span>
-                                    @elseif($user->role == 'supervisor produksi')
-                                        <span class="badge bg-warning">
-                                            <i class="bi bi-person-badge"></i> Supervisor
-                                        </span>
-                                    @else
-                                        <span class="badge bg-info">
-                                            <i class="bi bi-person-workspace"></i> Operator
-                                        </span>
+                                    @if($user->role == 'admin')<span class="badge bg-danger"><i class="bi bi-shield-fill-check"></i> Admin</span>
+                                    @elseif($user->role == 'ppc')<span class="badge bg-primary"><i class="bi bi-clipboard-data"></i> PPC</span>
+                                    @elseif($user->role == 'supervisor produksi')<span class="badge bg-warning"><i class="bi bi-person-badge"></i> Supervisor</span>
+                                    @else<span class="badge bg-info"><i class="bi bi-person-workspace"></i> Operator</span>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($user->division)
-                                        <span class="badge bg-secondary">{{ $user->division->name }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    @if($user->division)<span class="badge bg-secondary">{{ $user->division->name }}</span>@else<span class="text-muted">-</span>@endif
                                 </td>
                                 <td>
                                     @if($user->is_active)

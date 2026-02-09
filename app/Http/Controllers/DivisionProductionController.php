@@ -35,10 +35,13 @@ class DivisionProductionController extends Controller
             $division = Division::findOrFail($divisionId);
 
             // Get all WIP trackings for this division
-            $allWips = WipTracking::with(['partInternal', 'partOperation', 'batch.poProduction'])
+            $allWips = WipTracking::with(['partInternal', 'partOperation', 'batch.productionSchedules'])
                 ->whereHas('partOperation', function($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })
+                ->whereHas('batch', function($q){
+                    $q->orderBy('target_completed','asc');
+                }) // Ensure linked to production schedule
                 ->whereIn('status', ['waiting', 'in_progress']) // Exclude completed from main view
                 ->get();
 

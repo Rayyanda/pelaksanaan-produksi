@@ -92,17 +92,8 @@ Route::middleware(['auth'])->group(function () {
     //dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
-    //machining process
-    Route::prefix('machining')->name('machining.')->group(function () {
-
-        //monitoring
-        Route::prefix('monitoring')->name('monitoring.')->group(function () {
-
-            Route::get('/', function () {
-                return view('machining.monitoring.index');
-            })->name('index');
-        });
-    });
+    //part internal
+    Route::resource('part-internals', PartInternalController::class);
 
     /*
 |--------------------------------------------------------------------------
@@ -165,6 +156,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('performance-metrics');
     });
 
+
     Route::resource('po-productions', PoProductionController::class);
     Route::post('po-productions/bulk-delete', [PoProductionController::class, 'bulkDelete'])->name('po-productions.bulk-delete');
     Route::post('po-productions/{poProduction}/refresh-snapshot', [PoProductionController::class, 'refreshSnapshot'])->name('po-productions.refresh-snapshot');
@@ -186,10 +178,9 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function () {
     //admin routes here
 
-    
 
-    //part internal
-    Route::resource('part-internals', PartInternalController::class);
+
+   
 
     //division
     Route::resource('divisions', App\Http\Controllers\DivisionController::class);
@@ -239,7 +230,7 @@ Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function 
     //users managemtent
     Route::resource('users', App\Http\Controllers\UserController::class);
 
-    
+
 
 
 

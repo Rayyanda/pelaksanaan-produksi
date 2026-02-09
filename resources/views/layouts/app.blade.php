@@ -156,7 +156,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.*') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 1) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-box"></i>
                                         <span>Wax Room</span>
                                     </a>
                                 </li>
@@ -168,7 +168,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 2) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-box-seam"></i>
                                         <span>Mould Room</span>
                                     </a>
                                 </li>
@@ -179,7 +179,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 3) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-fire"></i>
                                         <span>Melting Room</span>
                                     </a>
                                 </li>
@@ -190,7 +190,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 5) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-thermometer-half"></i>
                                         <span>Heat Treatment</span>
                                     </a>
                                 </li>
@@ -201,7 +201,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 4) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-scissors"></i>
                                         <span>Cut Off</span>
                                     </a>
                                 </li>
@@ -212,7 +212,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 6) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-check-circle"></i>
                                         <span>Finishing</span>
                                     </a>
                                 </li>
@@ -223,7 +223,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 7) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-gear"></i>
                                         <span>Machining</span>
                                     </a>
                                 </li>
@@ -234,7 +234,7 @@
                                 <li
                                     class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
                                     <a href="{{ route('divisions-production.dashboard', 8) }}" class='sidebar-link'>
-                                        <i class="bi bi-clipboard-data"></i>
+                                        <i class="bi bi-check-all"></i>
                                         <span>Quality COntrol</span>
                                     </a>
                                 </li>

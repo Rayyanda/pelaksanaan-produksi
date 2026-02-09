@@ -203,14 +203,6 @@
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">WIP Tracking List</h5>
-                    {{-- <div>
-                        <a href="{{ route('wip-trackings.export') }}" class="btn btn-outline-success me-2">
-                            <i class="bi bi-file-earmark-excel"></i> Export
-                        </a>
-                        <a href="{{ route('wip-trackings.create') }}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Add New WIP
-                        </a>
-                    </div> --}}
                 </div>
             </div>
             <div class="card-body">
@@ -313,12 +305,6 @@
                                            title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        {{-- <a href="{{ route('wip-trackings.edit', $wip->id) }}"
-                                           class="btn btn-sm btn-warning"
-                                           data-bs-toggle="tooltip"
-                                           title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a> --}}
                                         @if($wip->status != 'completed')
                                         <button type="button"
                                                 class="btn btn-sm btn-success"
@@ -328,19 +314,7 @@
                                             <i class="bi bi-check2-square"></i>
                                         </button>
                                         @endif
-                                        {{-- <form action="{{ route('wip-trackings.destroy', $wip->id) }}"
-                                              method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Are you sure want to delete this WIP tracking?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    data-bs-toggle="tooltip"
-                                                    title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form> --}}
+
                                     </div>
                                 </td>
                             </tr>

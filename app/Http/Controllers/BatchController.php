@@ -93,7 +93,6 @@ class BatchController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'batch_number' => 'required|string|max:255|unique:batches,batch_number',
             'po_production_id' => 'required|exists:po_productions,id',
             'part_internal_id' => 'required|exists:part_internals,id',
             'quantity' => 'required|integer|min:1',

@@ -386,4 +386,13 @@ class PoProductionController extends Controller
                 ->with('error', 'Failed to export PO Productions');
         }
     }
+
+    public function getDetail($poId)
+    {
+        $data = PoProduction::findOrFail($poId);
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
 }

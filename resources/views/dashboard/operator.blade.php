@@ -33,9 +33,9 @@
                     <div class="card-header border border-bottom text-dark">
                         <h5 class="mb-0"><i class="bi bi-list-task"></i> My Work Queue</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body py-3">
                         @forelse($myWorkQueue as $schedule)
-                            <div class="card mb-2 border-start border-warning border-3">
+                            <div class="card mb-3 border-start border-warning border-3">
                                 <div class="card-body p-3">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <div>
@@ -55,13 +55,9 @@
                                             <i class="bi bi-calendar"></i> Start:
                                             {{ $schedule->plan_start_date->format('d M Y') }}
                                         </small>
-                                        <form action="{{ route('production-schedules.start', $schedule) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="bi bi-play-circle"></i> Start
-                                            </button>
-                                        </form>
+
+                                        <a href="{{ route('divisions-production.dashboard', auth()->user()->division_id) }}" class="btn btn-sm btn-primary"><i class="bi bi-play-circle"></i> Start</a>
+
                                     </div>
                                 </div>
                             </div>

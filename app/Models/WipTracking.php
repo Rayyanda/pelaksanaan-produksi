@@ -131,7 +131,7 @@ class WipTracking extends Model
             'batch_id' => $this->batch_id,
             'wip_qty' => $this->wip_qty, // Same quantity as current
             'step' => 'quality_check',
-            'status' => 'waiting',
+            'status' => 'in_progress',
         ]);
 
         return $newWip;

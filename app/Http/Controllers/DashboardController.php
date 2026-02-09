@@ -24,7 +24,7 @@ class DashboardController extends Controller
         switch($user->role) {
             case 'admin':
                 return $this->adminDashboard();
-            case 'supervisor':
+            case 'supervisor produksi':
                 return $this->supervisorDashboard();
             case 'ppc':
                 return $this->ppcDashboard();

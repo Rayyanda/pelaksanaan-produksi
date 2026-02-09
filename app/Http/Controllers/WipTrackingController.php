@@ -235,6 +235,7 @@ class WipTrackingController extends Controller
                 $message .= '. Next operation (Route ' . $nextWip->partOperation->route_order . ') is now ready.';
             } else {
                 $message .= '. This was the last operation for this batch.';
+
             }
 
             DB::commit();

@@ -18,7 +18,7 @@
                     <i class="bi bi-gear-fill"></i>
                 </div>
                 <h1 class="brand-name">Pelaksanaan Produksi</h1>
-                <p class="brand-tagline">The Starter App for metinca application web program</p>
+                <p class="brand-tagline">Monitoring dan Work In Process Tracking</p>
             </div>
 
             <!-- Alert Example (hidden by default) -->
@@ -73,27 +73,6 @@
                 </button>
             </form>
 
-            {{-- <!-- Divider -->
-            <div class="divider">
-                <span>atau masuk dengan</span>
-            </div>
-
-            <!-- Social Login -->
-            <div class="social-login">
-                <button class="btn-social" onclick="socialLogin('google')">
-                    <i class="bi bi-google"></i>
-                    Google
-                </button>
-                <button class="btn-social" onclick="socialLogin('microsoft')">
-                    <i class="bi bi-microsoft"></i>
-                    Microsoft
-                </button>
-            </div>
-
-            <!-- Sign Up Link -->
-            <div class="signup-link">
-                Belum punya akun? <a href="#">Daftar sekarang</a>
-            </div> --}}
             <div class="signup-link">
                 kembali ke <a href="/home">Homepage</a>
             </div>
@@ -133,14 +112,12 @@
 
             // Simulate login validation
             if (username && password) {
-                // Show success message (in real app, this would be an API call)
-                //console.log('Login attempt:', { username, password, remember });
+
 
                 App.loading('Proses login');
 
                 App.ajax('{{ route('login.store') }}', 'POST',formData).then(response => {
-                    // Handle successful login
-                    // For example, redirect to dashboard
+
                     Swal.fire({
                         title: 'Login Berhasil',
                         text: 'Selamat datang kembali!',
@@ -155,12 +132,7 @@
                     App.closeLoading();
                     App.error('Gagal Login',error.response.data.message || 'Terjadi kesalahan saat login.');
                 });
-                // Example: Show error
-                // showError('Username atau password salah!');
 
-                // Example: Successful login redirect
-                //alert('Login berhasil! Redirecting...');
-                // window.location.href = 'dashboard.html';
             }
         });
 

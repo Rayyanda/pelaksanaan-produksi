@@ -50,8 +50,8 @@
     <div class="row g-4">
         <!-- Active Schedules -->
         <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-light">
+            <div class="card shadow">
+                <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Active Production Schedules</h5>
                 </div>
                 <div class="card-body">
@@ -112,8 +112,8 @@
 
         <!-- Delayed Alert -->
         <div class="col-lg-4">
-            <div class="card border-danger h-100">
-                <div class="card-header bg-danger text-white">
+            <div class="card shadow h-100">
+                <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Delayed Tasks</h5>
                 </div>
                 <div class="card-body">
@@ -137,8 +137,8 @@
 
         <!-- Active WIP Tracking -->
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-light">
+            <div class="card shdaow">
+                <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-arrow-repeat"></i> Active WIP Tracking</h5>
                 </div>
                 <div class="card-body">

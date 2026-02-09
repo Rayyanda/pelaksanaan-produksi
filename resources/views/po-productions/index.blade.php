@@ -117,62 +117,6 @@
                                 </td>
                             </tr>
 
-                            <!-- View Modal -->
-                            {{-- <div class="modal fade" id="viewModal{{ $po->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModal{{ $po->id }}Title" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">PO Details - {{ $po->po_number }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table class="table table-borderless">
-                                                <tr>
-                                                    <th width="30%">PO Number</th>
-                                                    <td>{{ $po->po_number }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Quantity</th>
-                                                    <td>{{ number_format($po->quantity) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Due Date</th>
-                                                    <td>{{ $po->due_date ? \Carbon\Carbon::parse($po->due_date)->format('d M Y') : '-' }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>PO Source</th>
-                                                    <td>
-                                                        @if($po->po_source)
-                                                            <a href="{{ $po->po_source }}" target="_blank">{{ $po->po_source }}</a>
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Created At</th>
-                                                    <td>{{ $po->created_at->format('d M Y H:i') }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Updated At</th>
-                                                    <td>{{ $po->updated_at->format('d M Y H:i') }}</td>
-                                                </tr>
-                                            </table>
-
-                                            @if($po->po_snapshot)
-                                            <hr>
-                                            <h6>PO Snapshot Data</h6>
-                                            <div class="alert alert-light">
-                                                <pre class="mb-0" style="max-height: 300px; overflow-y: auto;">{{ json_encode(json_decode($po->po_snapshot), JSON_PRETTY_PRINT) }}</pre>
-                                            </div>
-                                            @endif
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> --}}
                             @endforeach
                         </tbody>
                     </table>
