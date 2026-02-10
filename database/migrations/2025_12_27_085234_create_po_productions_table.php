@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->date('due_date')->nullable();
             $table->string('po_source')->nullable();
+            $table->enum('status', ['pending', 'scheduled', 'on_production', 'completed', 'cancelled'])->default('pending');
             $table->softDeletes();
             $table->timestamps();
         });

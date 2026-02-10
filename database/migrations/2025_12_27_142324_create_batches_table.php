@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('quantity')->default(0);
             $table->date('target_completed')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed', 'on_hold', 'cancelled'])->default('pending');
+            $table->foreignId('approval_manager')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('approval_manager_at')->nullable();
             $table->string('part_no_customer')->nullable();
             $table->string('part_no_customer_source')->nullable();
             $table->string('drawing_number')->nullable();

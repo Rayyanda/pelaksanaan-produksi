@@ -30,12 +30,17 @@ class Division extends Model
 
     public function operations()
     {
-        return $this->hasMany(PartOperation::class, 'division_id');
+        return $this->hasManyThrough(PartOperation::class, Area::class, 'division_id', 'area_id', 'id', 'id');
+    }
+
+    public function areas()
+    {
+        return $this->hasMany(Area::class);
     }
 
     public function activeWipTrackings()
     {
-        return WipTracking::whereHas('partOperation', function($q) {
+        return WipTracking::whereHas('partOperation.area.division', function ($q) {
             $q->where('division_id', $this->id);
         })->whereIn('status', ['waiting', 'in_progress']);
     }
@@ -45,7 +50,7 @@ class Division extends Model
      */
     public function completedWipTrackings()
     {
-        return WipTracking::whereHas('partOperation', function($q) {
+        return WipTracking::whereHas('partOperation', function ($q) {
             $q->where('division_id', $this->id);
         })->where('status', 'completed');
     }
@@ -55,7 +60,7 @@ class Division extends Model
      */
     public function getWipCountByStatus($status)
     {
-        return WipTracking::whereHas('partOperation', function($q) {
+        return WipTracking::whereHas('partOperation', function ($q) {
             $q->where('division_id', $this->id);
         })->where('status', $status)->count();
     }
@@ -65,7 +70,7 @@ class Division extends Model
      */
     public function getTotalWipQty()
     {
-        return WipTracking::whereHas('partOperation', function($q) {
+        return WipTracking::whereHas('partOperation', function ($q) {
             $q->where('division_id', $this->id);
         })->whereIn('status', ['waiting', 'in_progress'])->sum('wip_qty');
     }

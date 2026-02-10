@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('part_operations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('part_internal_id')->constrained('part_internals')->cascadeOnDelete();
-            $table->foreignId('division_id')->nullable()->constrained('divisions')->nullOnDelete();
+            $table->foreignId('division_id')->constrained('divisions')->cascadeOnDelete();
+            $table->foreignId('area_id')->nullable()->constrained('areas')->nullOnDelete();
             $table->text('operation_data')->nullable();
             $table->integer('route_order');
             $table->softDeletes();

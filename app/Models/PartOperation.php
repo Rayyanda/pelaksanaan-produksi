@@ -10,6 +10,7 @@ class PartOperation extends Model
     protected $fillable = [
         'part_internal_id',
         'division_id',
+        'area_id',
         'operation_data',
         'route_order',
     ];
@@ -33,17 +34,22 @@ class PartOperation extends Model
         return $this->belongsTo(Division::class, 'division_id');
     }
 
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
+    }
+
     // PartOperation.php
     public function wipTrackings()
     {
         return $this->hasMany(WipTracking::class, 'part_operation_id');
     }
 
-// Method helper
-public function getWipForBatch($batchId)
-{
-    return $this->wipTrackings()
-                ->where('batch_id', $batchId)
-                ->first();
-}
+    // Method helper
+    public function getWipForBatch($batchId)
+    {
+        return $this->wipTrackings()
+            ->where('batch_id', $batchId)
+            ->first();
+    }
 }

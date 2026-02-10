@@ -13,11 +13,11 @@ class PoProduction extends Model
         'quantity',
         'due_date',
         'po_source',
+        'status'
     ];
 
     protected $casts = [
         'po_snapshot' => 'array',
         'due_date' => 'date',
     ];
-
 }

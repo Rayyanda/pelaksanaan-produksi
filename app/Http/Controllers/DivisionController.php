@@ -4,20 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Division;
+use App\Models\User;
+use App\Models\Area;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class DivisionController extends Controller
 {
-    //
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-        $divisions = Division::with(['operations'])->paginate(10);
-        return view('divisions.index',compact('divisions'));
+        $divisions = Division::withCount('areas')->paginate(10);
+        return view('divisions.index', compact('divisions'));
     }
 
     /**
@@ -25,8 +26,8 @@ class DivisionController extends Controller
      */
     public function create()
     {
-        //
-        return view('divisions.create');
+        $users = User::where('is_active', true)->where('role', 'foreman')->get();
+        return view('divisions.create', compact('users'));
     }
 
     /**
@@ -34,24 +35,66 @@ class DivisionController extends Controller
      */
     public function store(Request $request)
     {
-        //
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:50|unique:divisions,code',
             'description' => 'nullable|string',
             'is_active' => 'nullable|boolean',
+            'areas' => 'nullable|array',
+            'areas.*.name' => 'required|string|max:255',
+            'areas.*.foreman_id' => 'nullable|exists:users,id',
+            'areas.*.capacity' => 'nullable|integer|min:0',
+            'areas.*.operator_count' => 'nullable|integer|min:0',
+            'areas.*.duration' => 'nullable|integer|min:0',
+            'areas.*.description' => 'nullable|string',
+            'areas.*.process_order' => 'nullable|integer|min:0',
+            'areas.*.equipment' => 'nullable|string|max:255',
         ]);
-        $validated['is_active'] = $request->has('is_active') ? $validated['is_active'] : true;
-        Division::create($validated);
-        return redirect()->route('divisions.index')->with('success','Division created successfully.');
+
+        DB::beginTransaction();
+        try {
+            $validated['is_active'] = $request->has('is_active') ? $validated['is_active'] : true;
+
+            $division = Division::create([
+                'name' => $validated['name'],
+                'code' => $validated['code'] ?? null,
+                'description' => $validated['description'] ?? null,
+                'is_active' => $validated['is_active'],
+            ]);
+
+            // Create areas if provided
+            if (!empty($validated['areas'])) {
+                foreach ($validated['areas'] as $areaData) {
+                    $division->areas()->create([
+                        'name' => $areaData['name'],
+                        'foreman_id' => $areaData['foreman_id'] ?? null,
+                        'capacity' => $areaData['capacity'] ?? null,
+                        'operator_count' => $areaData['operator_count'] ?? null,
+                        'duration' => $areaData['duration'] ?? null,
+                        'description' => $areaData['description'] ?? null,
+                        'process_order' => $areaData['process_order'] ?? null,
+                        'equipment' => $areaData['equipment'] ?? null,
+                        'is_active' => true,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('divisions.index')->with('success', 'Division created successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating division: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to create division: ' . $e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $division = Division::with(['areas.foreman'])->findOrFail($id);
+        return view('divisions.show', compact('division'));
     }
 
     /**
@@ -59,9 +102,9 @@ class DivisionController extends Controller
      */
     public function edit($divisionId)
     {
-        //
-        $division = Division::findOrFail($divisionId);
-        return view('divisions.edit',compact('division'));
+        $division = Division::with('areas')->findOrFail($divisionId);
+        $users = User::where('is_active', true)->get();
+        return view('divisions.edit', compact('division', 'users'));
     }
 
     /**
@@ -69,19 +112,88 @@ class DivisionController extends Controller
      */
     public function update(Request $request, Division $division)
     {
-        //
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:divisions,code,'. $division->code,
+            'code' => 'nullable|string|max:50|unique:divisions,code,' . $division->id,
             'description' => 'nullable|string',
             'is_active' => 'nullable|boolean',
+            'areas' => 'nullable|array',
+            'areas.*.id' => 'nullable|exists:areas,id',
+            'areas.*.name' => 'required|string|max:255',
+            'areas.*.foreman_id' => 'nullable|exists:users,id',
+            'areas.*.capacity' => 'nullable|integer|min:0',
+            'areas.*.operator_count' => 'nullable|integer|min:0',
+            'areas.*.duration' => 'nullable|integer|min:0',
+            'areas.*.description' => 'nullable|string',
+            'areas.*.process_order' => 'nullable|integer|min:0',
+            'areas.*.equipment' => 'nullable|string|max:255',
+            'deleted_areas' => 'nullable|array',
+            'deleted_areas.*' => 'exists:areas,id',
         ]);
-        $validated['is_active'] = $request->has('is_active') ? $validated['is_active'] : true;
-        $division->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-        ]);
-        return redirect()->route('divisions.index')->with('success','Berhasil Update divisi');
+
+        DB::beginTransaction();
+        try {
+            $validated['is_active'] = $request->has('is_active') ? $validated['is_active'] : true;
+
+            $division->update([
+                'name' => $validated['name'],
+                'code' => $validated['code'] ?? null,
+                'description' => $validated['description'] ?? null,
+                'is_active' => $validated['is_active'],
+            ]);
+
+            // Handle deleted areas
+            if (!empty($validated['deleted_areas'])) {
+                Area::whereIn('id', $validated['deleted_areas'])
+                    ->where('division_id', $division->id)
+                    ->delete();
+            }
+
+            // Handle areas update/create
+            if (!empty($validated['areas'])) {
+                foreach ($validated['areas'] as $areaData) {
+                    if (!empty($areaData['id'])) {
+                        // Update existing area
+                        $area = Area::where('id', $areaData['id'])
+                            ->where('division_id', $division->id)
+                            ->first();
+
+                        if ($area) {
+                            $area->update([
+                                'name' => $areaData['name'],
+                                'foreman_id' => $areaData['foreman_id'] ?? null,
+                                'capacity' => $areaData['capacity'] ?? null,
+                                'operator_count' => $areaData['operator_count'] ?? null,
+                                'duration' => $areaData['duration'] ?? null,
+                                'description' => $areaData['description'] ?? null,
+                                'process_order' => $areaData['process_order'] ?? null,
+                                'equipment' => $areaData['equipment'] ?? null,
+                            ]);
+                        }
+                    } else {
+                        // Create new area
+                        $division->areas()->create([
+                            'name' => $areaData['name'],
+                            'foreman_id' => $areaData['foreman_id'] ?? null,
+                            'capacity' => $areaData['capacity'] ?? null,
+                            'operator_count' => $areaData['operator_count'] ?? null,
+                            'duration' => $areaData['duration'] ?? null,
+                            'description' => $areaData['description'] ?? null,
+                            'process_order' => $areaData['process_order'] ?? null,
+                            'equipment' => $areaData['equipment'] ?? null,
+                            'is_active' => true,
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('divisions.index')->with('success', 'Division updated successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating division: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to update division: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -89,14 +201,13 @@ class DivisionController extends Controller
      */
     public function destroy(Division $division)
     {
-        //
         try {
-            if ($division) {
-                return redirect()->back()->with('error', 'Unknown');
+            if (!$division) {
+                return redirect()->back()->with('error', 'Division not found');
             }
 
             $division->delete();
-            return redirect()->route('divisions.index')->with('success', 'division deleted successfully');
+            return redirect()->route('divisions.index')->with('success', 'Division deleted successfully');
         } catch (Exception $e) {
             Log::error('Error deleting division: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to delete division');

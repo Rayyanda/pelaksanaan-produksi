@@ -57,7 +57,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:ppc,operator,supervisor produksi,admin',
+            'role' => 'required|in:ppc,operator,supervisor produksi,admin,foreman',
             'division_id' => 'nullable|exists:divisions,id',
             'is_active' => 'nullable|boolean',
         ]);
@@ -93,7 +93,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:ppc,operator,supervisor produksi,admin',
+            'role' => 'required|in:ppc,operator,supervisor produksi,admin,foreman',
             'division_id' => 'nullable|exists:divisions,id',
             'is_active' => 'nullable|boolean',
         ]);

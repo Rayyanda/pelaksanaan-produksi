@@ -27,6 +27,9 @@ class Batch extends Model
         'part_no_customer_source',
         'drawing_number',
         'drawing_number_source',
+        'status',
+        'approval_manager',
+        'approval_manager_at',
     ];
 
     /**
@@ -37,7 +40,16 @@ class Batch extends Model
     protected $casts = [
         'quantity' => 'integer',
         'target_completed' => 'date',
+        'approval_manager_at' => 'datetime',
     ];
+
+    /**
+     * Get the approval manager that owns the batch.
+     */
+    public function approvalManager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approval_manager');
+    }
 
     /**
      * Get the PO Production that owns the batch.
@@ -128,7 +140,7 @@ class Batch extends Model
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'completed' => 'success',
             'in_production' => 'primary',
             'pending' => 'warning',
@@ -157,9 +169,9 @@ class Batch extends Model
      */
     public function scopeCompleted($query)
     {
-        return $query->whereHas('wipTrackings', function($q) {
+        return $query->whereHas('wipTrackings', function ($q) {
             $q->groupBy('batch_id')
-              ->havingRaw('COUNT(*) = SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END)');
+                ->havingRaw('COUNT(*) = SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END)');
         });
     }
 
@@ -168,7 +180,7 @@ class Batch extends Model
      */
     public function scopeInProduction($query)
     {
-        return $query->whereHas('wipTrackings', function($q) {
+        return $query->whereHas('wipTrackings', function ($q) {
             $q->where('status', 'in_progress');
         });
     }
@@ -179,10 +191,10 @@ class Batch extends Model
     public function scopeOverdue($query)
     {
         return $query->whereNotNull('target_completed')
-                    ->where('target_completed', '<', now())
-                    ->whereHas('wipTrackings', function($q) {
-                        $q->where('status', '!=', 'completed');
-                    });
+            ->where('target_completed', '<', now())
+            ->whereHas('wipTrackings', function ($q) {
+                $q->where('status', '!=', 'completed');
+            });
     }
 
     /**
