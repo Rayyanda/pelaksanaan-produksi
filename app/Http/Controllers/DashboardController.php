@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Batch;
+use App\Models\BatchOperation;
 use App\Models\Division;
 use App\Models\ProductionSchedule;
 use App\Models\WipTracking;
@@ -21,13 +22,15 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Route ke dashboard sesuai role
-        switch($user->role) {
+        switch ($user->role) {
             case 'admin':
                 return $this->adminDashboard();
             case 'supervisor produksi':
                 return $this->supervisorDashboard();
             case 'ppc':
                 return $this->ppcDashboard();
+            case 'foreman':
+                return $this->foremanDashboard();
             case 'operator':
                 return $this->operatorDashboard();
             default:
@@ -65,7 +68,7 @@ class DashboardController extends Controller
 
             // Division Overview
             'divisions' => Division::where('is_active', true)
-                ->withCount(['wipTrackings as active_wip' => function($q) {
+                ->withCount(['wipTrackings as active_wip' => function ($q) {
                     $q->where('status', 'in_progress');
                 }])
                 ->get(),
@@ -105,7 +108,7 @@ class DashboardController extends Controller
 
             // Active WIP Tracking
             'activeWip' => WipTracking::with(['partInternal', 'batch', 'partOperation'])
-                ->whereHas('partOperation', function($q) use ($divisionId) {
+                ->whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })
                 ->where('status', 'in_progress')
@@ -125,7 +128,7 @@ class DashboardController extends Controller
                 'delayed' => ProductionSchedule::where('process_name', $processName)
                     ->where('status', 'delayed')
                     ->count(),
-                'wip_qty' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'wip_qty' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'in_progress')->sum('wip_qty'),
             ],
@@ -175,6 +178,91 @@ class DashboardController extends Controller
         return view('dashboard.ppc', $data);
     }
 
+    // ==================== FOREMAN DASHBOARD ====================
+    protected function foremanDashboard()
+    {
+        $user = Auth::user();
+        $divisionId = $user->division_id;
+
+        if (!$divisionId) {
+            abort(403, 'Foreman must be assigned to a division');
+        }
+
+        $division = Division::findOrFail($divisionId);
+        $processName = $division->description;
+
+        $data = [
+            'division' => $division,
+
+            // Active Schedules di Division ini
+            'activeSchedules' => ProductionSchedule::with(['batch.partInternal'])
+                ->where('process_name', $processName)
+                ->whereIn('status', ['planned', 'in_progress'])
+                ->orderBy('plan_start_date')
+                ->get(),
+
+            // Delayed Schedules
+            'delayedSchedules' => ProductionSchedule::with(['batch.partInternal'])
+                ->where('process_name', $processName)
+                ->where('status', 'delayed')
+                ->get(),
+
+            // Active WIP Tracking dengan operator detail
+            'activeWip' => WipTracking::with(['partInternal', 'batch', 'partOperation'])
+                ->whereHas('partOperation', function ($q) use ($divisionId) {
+                    $q->where('division_id', $divisionId);
+                })
+                ->where('status', 'in_progress')
+                ->latest()
+                ->get(),
+
+            // Completed Today (untuk monitoring produktivitas)
+            'completedToday' => WipTracking::with(['partInternal', 'batch'])
+                ->whereHas('partOperation', function ($q) use ($divisionId) {
+                    $q->where('division_id', $divisionId);
+                })
+                ->where('status', 'completed')
+                ->whereDate('updated_at', today())
+                ->latest()
+                ->get(),
+
+            // Operator Performance (operator di division ini)
+            'operatorPerformance' => $this->getOperatorPerformance($divisionId),
+
+            // Summary Stats
+            'stats' => [
+                'total_active' => ProductionSchedule::where('process_name', $processName)
+                    ->whereIn('status', ['planned', 'in_progress'])
+                    ->count(),
+                'on_time' => ProductionSchedule::where('process_name', $processName)
+                    ->where('status', 'completed')
+                    ->whereColumn('actual_end_date', '<=', 'plan_end_date')
+                    ->whereMonth('actual_end_date', now()->month)
+                    ->count(),
+                'delayed' => ProductionSchedule::where('process_name', $processName)
+                    ->where('status', 'delayed')
+                    ->count(),
+                'wip_qty' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                    $q->where('division_id', $divisionId);
+                })->where('status', 'in_progress')->sum('wip_qty'),
+                'active_operators' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                    $q->where('division_id', $divisionId);
+                })
+                    ->where('status', 'in_progress')
+                    ->distinct('operator_id')
+                    ->count('operator_id'),
+                'completed_today_count' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                    $q->where('division_id', $divisionId);
+                })
+                    ->where('status', 'completed')
+                    ->whereDate('updated_at', today())
+                    ->count(),
+            ],
+        ];
+
+        return view('dashboard.foreman', $data);
+    }
+
     // ==================== OPERATOR DASHBOARD ====================
     protected function operatorDashboard()
     {
@@ -217,7 +305,7 @@ class DashboardController extends Controller
 
             // Active WIP
             'activeWip' => WipTracking::with(['partInternal', 'batch'])
-                ->whereHas('partOperation', function($q) use ($divisionId) {
+                ->whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })
                 ->where('status', 'in_progress')
@@ -237,7 +325,7 @@ class DashboardController extends Controller
                     ->where('status', 'completed')
                     ->whereDate('actual_end_date', today())
                     ->count(),
-                'wip_qty' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'wip_qty' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'in_progress')->sum('wip_qty'),
             ],
@@ -299,6 +387,53 @@ class DashboardController extends Controller
                     ->whereIn('status', ['planned', 'in_progress'])
                     ->distinct('batch_id')
                     ->count('batch_id'),
+            ];
+        }
+
+        return collect($result);
+    }
+
+    /**
+     * Get operator performance in a specific division
+     */
+    protected function getOperatorPerformance($divisionId)
+    {
+        $operators = \App\Models\User::where('role', 'operator')
+            ->where('division_id', $divisionId)
+            ->get();
+
+        $result = [];
+
+        foreach ($operators as $operator) {
+            $activeWip = WipTracking::whereHas('batchOperation', function ($q) use ($operator) {
+                $q->where('operator_id', $operator->id);
+            })
+                ->where('status', 'in_progress')
+                ->count();
+
+            $completedToday = WipTracking::whereHas('batchOperation', function ($q) use ($operator) {
+                $q->where('operator_id', $operator->id);
+            })
+                ->where('status', 'completed')
+                ->whereDate('updated_at', today())
+                ->count();
+
+            $completedThisWeek = WipTracking::whereHas('batchOperation', function ($q) use ($operator) {
+                $q->where('operator_id', $operator->id);
+            })
+                ->where('status', 'completed')
+                ->whereBetween('updated_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ])
+                ->count();
+
+            $result[] = [
+                'operator' => $operator,
+                'active_tasks' => $activeWip,
+                'completed_today' => $completedToday,
+                'completed_this_week' => $completedThisWeek,
+                'status' => $activeWip > 0 ? 'working' : 'idle',
             ];
         }
 

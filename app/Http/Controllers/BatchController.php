@@ -12,69 +12,131 @@ use carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Exception;
+use App\Services\ProductionScheduleService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BatchController extends Controller
 {
+
+    protected $scheduleService;
+
+    public function __construct(ProductionScheduleService $scheduleService)
+    {
+        $this->scheduleService = $scheduleService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        try {
-            $query = Batch::with(['poProduction', 'partInternal', 'wipTrackings']);
+        // Query dasar
+        $query = Batch::with([
+            'poProduction',
+            'partInternal.partOperations',
+            'wipTrackings'
+        ]);
 
-            if ($request->filled('po_production_id')) {
-                $query->where('po_production_id', $request->po_production_id);
-            }
-
-            if ($request->filled('part_internal_id')) {
-                $query->where('part_internal_id', $request->part_internal_id);
-            }
-
-            if ($request->filled('status')) {
-                $query->whereHas('wipTrackings', function ($q) use ($request) {
-                    $q->where('status', $request->status);
-                });
-            }
-
-            $batches = $query->orderBy('created_at', 'desc')->get();
-
-            $stats = [
-                'total' => Batch::count(),
-
-                'in_production' => Batch::whereHas('wipTrackings', function ($q) {
-                    $q->where('status', 'in_progress');
-                })->count(),
-
-                'completed' => Batch::whereExists(function ($q) {
-                    $q->selectRaw('1')
-                        ->from('wip_trackings')
-                        ->whereColumn('wip_trackings.batch_id', 'batches.id')
-                        ->groupBy('wip_trackings.batch_id')
-                        ->havingRaw(
-                            'COUNT(*) = SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END)'
-                        );
-                })->count(),
-
-                'total_qty' => Batch::sum('quantity'),
-            ];
-
-            $poProductions = PoProduction::orderBy('po_number')->get();
-            $partInternals = PartInternal::orderBy('part_number')->get();
-
-            return view('batches.index', compact(
-                'batches',
-                'stats',
-                'poProductions',
-                'partInternals'
-            ));
-        } catch (Exception $e) {
-            Log::error('Error fetching Batches: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to load Batches');
+        // Filter berdasarkan PO Production
+        if ($request->filled('po_production_id')) {
+            $query->where('po_production_id', $request->po_production_id);
         }
+
+        // Filter berdasarkan Part Internal
+        if ($request->filled('part_internal_id')) {
+            $query->where('part_internal_id', $request->part_internal_id);
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'target_completed');
+        $order = $request->get('order', 'desc');
+
+        $query->orderBy($sortBy, $order);
+
+        $baseQuery = clone $query;
+
+        $pendingBatches = (clone $baseQuery)->where('status', 'pending')->get();
+        $inProgressBatches = (clone $baseQuery)->where('status', 'in_progress')->get();
+        $completedBatches = (clone $baseQuery)->where('status', 'completed')->get();
+        $onHoldBatches = (clone $baseQuery)->where('status', 'on_hold')->get();
+        $cancelledBatches = (clone $baseQuery)->where('status', 'cancelled')->get();
+
+        $batches = (clone $baseQuery)->get();
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'in_production' => $inProgressBatches->count(),
+            'completed' => $completedBatches->count(),
+            'total_qty' => (clone $baseQuery)->sum('quantity'),
+            'pending' => $pendingBatches->count(),
+            'on_hold' => $onHoldBatches->count(),
+            'cancelled' => $cancelledBatches->count(),
+        ];
+
+        // Data untuk dropdown filter
+        $poProductions = PoProduction::orderBy('po_number', 'desc')->get();
+        $partInternals = PartInternal::orderBy('part_number', 'asc')->get();
+
+        return view('batches.index', compact(
+            'stats',
+            'poProductions',
+            'partInternals',
+            'batches',
+            'pendingBatches',
+            'inProgressBatches',
+            'completedBatches',
+            'onHoldBatches',
+            'cancelledBatches'
+        ));
     }
 
+    public function approve(Batch $batch)
+    {
+        // Check permission
+        if (!Auth::user()->role == 'admin') {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
+        // Get first operation only (route_order = 1)
+        $firstOperation = PartOperation::where('part_internal_id', $batch->part_internal_id)
+            ->orderBy('route_order')
+            ->first();
+
+        if (!$firstOperation) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'No operations defined for this part. Please create operations first.');
+        }
+
+        $this->scheduleService->generateScheduleForBatch(
+            $batch->id,
+            Carbon::parse(now()),
+        );
+
+        // Create WIP Tracking only for first operation
+        WipTracking::create([
+            'part_internal_id' => $batch->part_internal_id,
+            'part_operation_id' => $firstOperation->id,
+            'batch_id' => $batch->id,
+            'wip_qty' => $batch->quantity,
+            'step' => 'process',
+            'status' => 'waiting',
+        ]);
+
+        // Update status
+        $batch->status = 'in_progress';
+        $batch->approval_manager = Auth::user()->id;
+        $batch->approval_manager_at = now();
+        $batch->save();
+        $batch->poProduction->status = 'on_production';
+        $batch->poProduction->save();
+
+        return redirect()->route('batches.index')->with('success', 'Batch approved and production started!');
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -116,37 +178,22 @@ class BatchController extends Controller
             // Create batch
             $batch = Batch::create($validated);
 
-            // Get first operation only (route_order = 1)
-            $firstOperation = PartOperation::where('part_internal_id', $validated['part_internal_id'])
-                ->orderBy('route_order')
-                ->first();
-
-            if (!$firstOperation) {
-                DB::rollBack();
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with('error', 'No operations defined for this part. Please create operations first.');
-            }
-
-            // Create WIP Tracking only for first operation
-            WipTracking::create([
-                'part_internal_id' => $validated['part_internal_id'],
-                'part_operation_id' => $firstOperation->id,
-                'batch_id' => $batch->id,
-                'wip_qty' => $validated['quantity'],
-                'step' => 'process',
-                'status' => 'waiting',
-            ]);
-
             // Generate production schedules
-            $this->generateProductionSchedules($batch);
+            // $this->scheduleService->generateScheduleForBatch(
+            //     $batch->id,
+            //     Carbon::parse(now()),
+            // );
+
+
+            $batch->poProduction->update([
+                'status' => 'scheduled',
+            ]);
 
             DB::commit();
 
             return redirect()
                 ->route('batches.show', $batch->id)
-                ->with('success', 'Batch created successfully. First operation (Route ' . $firstOperation->route_order . ') is ready to start.');
+                ->with('success', 'Batch created successfully. Wait for approve manager production');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating Batch: ' . $e->getMessage());
@@ -371,6 +418,16 @@ class BatchController extends Controller
         }
     }
 
+    public function exportPDF(Batch $batch)
+    {
+        $partInternal = PartInternal::with(['partOperations.division', 'partOperations.area', 'partOperations.process'])
+            ->findOrFail($batch->part_internal_id);
+
+        $pdf = Pdf::loadView('batches.jobcard', compact('partInternal', 'batch'));
+
+        return $pdf->download('Master_Jobcard_' . $partInternal->part_number . '.pdf');
+    }
+
     /**
      * Export single batch detail
      */
@@ -448,7 +505,7 @@ class BatchController extends Controller
 
         // PERBAIKAN: Cek kalau batches kosong atau gak ada schedule
         if ($batches->isEmpty()) {
-            return view('batches.timeline-all', [
+            return view('batches.timeline', [
                 'batches' => collect(),
                 'minDate' => now(),
                 'maxDate' => now()->addMonths(3),

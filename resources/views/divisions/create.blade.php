@@ -143,52 +143,19 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Process Order</label>
-                    <input type="number" name="areas[${areaIndex}][process_order]" 
-                           class="form-control" min="0" placeholder="1">
-                    <small class="text-muted">Urutan proses</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Capacity</label>
-                    <input type="number" name="areas[${areaIndex}][capacity]" 
-                           class="form-control" min="0" placeholder="100">
-                    <small class="text-muted">Unit per durasi</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Operator Count</label>
-                    <input type="number" name="areas[${areaIndex}][operator_count]" 
-                           class="form-control" min="0" placeholder="5">
-                    <small class="text-muted">Jumlah operator</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Duration (min)</label>
-                    <input type="number" name="areas[${areaIndex}][duration]" 
-                           class="form-control" min="0" placeholder="30">
-                    <small class="text-muted">Per unit (menit)</small>
-                </div>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Equipment</label>
-                    <input type="text" name="areas[${areaIndex}][equipment]" 
-                           class="form-control" placeholder="e.g. Polishing Machine">
+                    <label class="form-label">Max Operator</label>
+                    <input type="number" name="areas[${areaIndex}][max_operator]" 
+                           class="form-control" min="0" placeholder="5">
+                    <small class="text-muted">Jumlah operator maksimal yang tersedia</small>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Description</label>
                     <textarea name="areas[${areaIndex}][description]" 
-                              class="form-control" rows="2" placeholder="Detail area/proses"></textarea>
+                              class="form-control" rows="2" placeholder="Deskripsi detail area/proses"></textarea>
                 </div>
             </div>
         </div>

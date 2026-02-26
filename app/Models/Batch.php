@@ -67,6 +67,11 @@ class Batch extends Model
         return $this->belongsTo(PartInternal::class);
     }
 
+    public function batchOperations(): HasMany
+    {
+        return $this->hasMany(BatchOperation::class);
+    }
+
     /**
      * Get the WIP trackings for the batch.
      */

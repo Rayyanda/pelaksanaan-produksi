@@ -29,4 +29,9 @@ class BatchOperation extends Model
     {
         return $this->belongsTo(PartOperation::class, 'part_operation_id');
     }
+
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_id');
+    }
 }

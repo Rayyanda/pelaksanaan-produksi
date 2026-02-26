@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Exception;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class WipTrackingController extends Controller
 {
@@ -129,8 +130,8 @@ class WipTrackingController extends Controller
             $wipTracking->batch->markInProgress();
 
             $processName = optional($wipTracking->partOperation)
-                ->division
-                ->description;
+                ->area
+                ->name;
 
             if (!$processName) {
                 Log::warning('Process name not found for WIP', [
@@ -140,7 +141,7 @@ class WipTrackingController extends Controller
             }
 
             ProductionSchedule::where('process_name', $processName)
-                ->where('batch_id','=', $wipTracking->batch_id)
+                ->where('batch_id', '=', $wipTracking->batch_id)
                 ->whereNull('actual_start_date')
                 ->update([
                     'actual_start_date' => now(),
@@ -199,8 +200,8 @@ class WipTrackingController extends Controller
             ]);
 
             $processName = optional($wipTracking->partOperation)
-                ->division
-                ->description;
+                ->area
+                ->name;
 
             if (!$processName) {
                 Log::warning('Process name not found for WIP', [
@@ -211,8 +212,8 @@ class WipTrackingController extends Controller
 
             $actualEndDate = now();
 
-            $schedule = ProductionSchedule::where('process_name', '=',$processName)
-                ->where('batch_id','=', $wipTracking->batch_id)
+            $schedule = ProductionSchedule::where('process_name', '=', $processName)
+                ->where('batch_id', '=', $wipTracking->batch_id)
                 ->first();
 
             // Tentukan status (delayed atau completed)
@@ -235,7 +236,6 @@ class WipTrackingController extends Controller
                 $message .= '. Next operation (Route ' . $nextWip->partOperation->route_order . ') is now ready.';
             } else {
                 $message .= '. This was the last operation for this batch.';
-
             }
 
             DB::commit();
@@ -437,6 +437,8 @@ class WipTrackingController extends Controller
                 ->with('error', 'Failed to export WIP Trackings');
         }
     }
+
+
 
     /**
      * Bulk update status

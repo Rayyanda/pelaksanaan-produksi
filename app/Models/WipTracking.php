@@ -88,7 +88,7 @@ class WipTracking extends Model
         }
 
         return static::where('batch_id', $this->batch_id)
-            ->whereHas('partOperation', function($q) {
+            ->whereHas('partOperation', function ($q) {
                 $q->where('route_order', '>', $this->partOperation->route_order);
             })
             ->orderBy('part_operation_id')
@@ -147,7 +147,7 @@ class WipTracking extends Model
         }
 
         return static::where('batch_id', $this->batch_id)
-            ->whereHas('partOperation', function($q) {
+            ->whereHas('partOperation', function ($q) {
                 $q->where('route_order', '<', $this->partOperation->route_order);
             })
             ->orderBy('part_operation_id', 'desc')
@@ -172,5 +172,17 @@ class WipTracking extends Model
                 $wip->finished_at = now();
             }
         });
+    }
+
+    public function batchOperation()
+    {
+        return $this->hasManyThrough(
+            BatchOperation::class,
+            Batch::class,
+            'id',
+            'batch_id',
+            'batch_id',
+            'id',
+        );
     }
 }

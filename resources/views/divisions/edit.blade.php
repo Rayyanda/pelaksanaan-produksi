@@ -129,11 +129,7 @@
             const areaId = isExisting ? areaData.id : '';
             const areaName = isExisting ? areaData.name : '';
             const foremanId = isExisting ? (areaData.foreman_id || '') : '';
-            const processOrder = isExisting ? (areaData.process_order || '') : '';
-            const capacity = isExisting ? (areaData.capacity || '') : '';
-            const operatorCount = isExisting ? (areaData.operator_count || '') : '';
-            const duration = isExisting ? (areaData.duration || '') : '';
-            const equipment = isExisting ? (areaData.equipment || '') : '';
+            const maxOperator = isExisting ? (areaData.max_operator || '') : '';
             const description = isExisting ? (areaData.description || '') : '';
 
             areaRow.innerHTML = `
@@ -141,7 +137,7 @@
         <div class="area-row-header">
             <h6 class="mb-0">Area #${areaIndex + 1}</h6>
             <button type="button" class="btn btn-sm btn-danger remove-area-btn" 
-                    onclick="removeAreaRow(this, ${areaId})" data-area-id="${areaId}">
+                    onclick="removeAreaRow(this, '${areaId}')" data-area-id="${areaId}">
                 <i class="bi bi-trash"></i> Remove
             </button>
         </div>
@@ -166,52 +162,19 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Process Order</label>
-                    <input type="number" name="areas[${areaIndex}][process_order]" 
-                           class="form-control" min="0" placeholder="1" value="${processOrder}">
-                    <small class="text-muted">Urutan proses</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Capacity</label>
-                    <input type="number" name="areas[${areaIndex}][capacity]" 
-                           class="form-control" min="0" placeholder="100" value="${capacity}">
-                    <small class="text-muted">Unit per durasi</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Operator Count</label>
-                    <input type="number" name="areas[${areaIndex}][operator_count]" 
-                           class="form-control" min="0" placeholder="5" value="${operatorCount}">
-                    <small class="text-muted">Jumlah operator</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label class="form-label">Duration (min)</label>
-                    <input type="number" name="areas[${areaIndex}][duration]" 
-                           class="form-control" min="0" placeholder="30" value="${duration}">
-                    <small class="text-muted">Per unit (menit)</small>
-                </div>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Equipment</label>
-                    <input type="text" name="areas[${areaIndex}][equipment]" 
-                           class="form-control" placeholder="e.g. Polishing Machine" value="${equipment}">
+                    <label class="form-label">Max Operator</label>
+                    <input type="number" name="areas[${areaIndex}][max_operator]" 
+                           class="form-control" min="0" placeholder="5" value="${maxOperator}">
+                    <small class="text-muted">Jumlah operator maksimal yang tersedia</small>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Description</label>
                     <textarea name="areas[${areaIndex}][description]" 
-                              class="form-control" rows="2" placeholder="Detail area/proses">${description}</textarea>
+                              class="form-control" rows="2" placeholder="Deskripsi detail area/proses">${description}</textarea>
                 </div>
             </div>
         </div>
@@ -237,8 +200,9 @@
             const areaRow = button.closest('.area-row');
             if (areaRow) {
                 // If it's an existing area, add to deleted list
-                if (areaId) {
-                    deletedAreas.push(areaId);
+                // Check if areaId is a valid number (not empty string, not 'false', not null)
+                if (areaId && areaId !== 'false' && areaId !== '' && !isNaN(areaId)) {
+                    deletedAreas.push(parseInt(areaId));
                     updateDeletedAreasInput();
                 }
 

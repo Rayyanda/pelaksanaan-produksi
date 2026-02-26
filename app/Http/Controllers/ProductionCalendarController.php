@@ -12,7 +12,27 @@ class ProductionCalendarController extends Controller
      */
     public function index()
     {
-        //
+        // Get paginated calendars for table
+        $calendars = ProductionCalendar::orderBy('start_date', 'desc')->paginate(10);
+
+        // Get all calendars for FullCalendar (without pagination)
+        $allCalendars = ProductionCalendar::all();
+
+        // Format data for FullCalendar
+        $calendarEvents = $allCalendars->map(function ($calendar) {
+            return [
+                'id' => $calendar->id,
+                'title' => $calendar->activity,
+                'start' => $calendar->start_date->format('Y-m-d'),
+                'end' => $calendar->end_date->addDay()->format('Y-m-d'), // FullCalendar end date is exclusive
+                'day_type' => $calendar->day_type,
+                'backgroundColor' => $calendar->day_type === 'holiday' ? '#0dcaf0' : '#ffc107',
+                'borderColor' => $calendar->day_type === 'holiday' ? '#0dcaf0' : '#ffc107',
+                'textColor' => $calendar->day_type === 'mass leave' ? '#000' : '#fff',
+            ];
+        });
+
+        return view('production_calendars.index', compact('calendars', 'calendarEvents'));
     }
 
     /**
@@ -20,7 +40,7 @@ class ProductionCalendarController extends Controller
      */
     public function create()
     {
-        //
+        return view('production_calendars.create');
     }
 
     /**
@@ -28,7 +48,17 @@ class ProductionCalendarController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'activity' => 'required|string|max:255',
+            'day_type' => 'required|in:mass leave,holiday',
+        ]);
+
+        ProductionCalendar::create($validated);
+
+        return redirect()->route('production_calendars.index')
+            ->with('success', 'Production calendar created successfully.');
     }
 
     /**
@@ -44,7 +74,7 @@ class ProductionCalendarController extends Controller
      */
     public function edit(ProductionCalendar $productionCalendar)
     {
-        //
+        return view('production_calendars.edit', compact('productionCalendar'));
     }
 
     /**
@@ -52,7 +82,17 @@ class ProductionCalendarController extends Controller
      */
     public function update(Request $request, ProductionCalendar $productionCalendar)
     {
-        //
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'activity' => 'required|string|max:255',
+            'day_type' => 'required|in:mass leave,holiday',
+        ]);
+
+        $productionCalendar->update($validated);
+
+        return redirect()->route('production_calendars.index')
+            ->with('success', 'Production calendar updated successfully.');
     }
 
     /**
@@ -60,6 +100,9 @@ class ProductionCalendarController extends Controller
      */
     public function destroy(ProductionCalendar $productionCalendar)
     {
-        //
+        $productionCalendar->delete();
+
+        return redirect()->route('production_calendars.index')
+            ->with('success', 'Production calendar deleted successfully.');
     }
 }

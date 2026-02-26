@@ -75,37 +75,22 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Area Name</th>
-                                            <th>Process Order</th>
-                                            <th>Capacity</th>
-                                            <th>Operators</th>
-                                            <th>Duration</th>
+                                            <th>Max Operator</th>
                                             <th>Foreman</th>
-                                            <th>Status</th>
+                                            <th>Description</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($division->areas->sortBy('process_order') as $area)
+                                        @foreach ($division->areas as $area)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     <strong>{{ $area->name }}</strong>
-                                                    @if ($area->description)
-                                                        <br><small
-                                                            class="text-muted">{{ Str::limit($area->description, 50) }}</small>
-                                                    @endif
                                                 </td>
                                                 <td>
-                                                    @if ($area->process_order)
-                                                        <span class="badge bg-secondary">{{ $area->process_order }}</span>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>{{ $area->capacity ?? '-' }}</td>
-                                                <td>{{ $area->operator_count ?? '-' }}</td>
-                                                <td>
-                                                    @if ($area->duration)
-                                                        {{ $area->duration }} min
+                                                    @if ($area->max_operator)
+                                                        <span class="badge bg-info">{{ $area->max_operator }}
+                                                            operators</span>
                                                     @else
                                                         -
                                                     @endif
@@ -118,10 +103,11 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($area->is_active)
-                                                        <span class="badge bg-success">Active</span>
+                                                    @if ($area->description)
+                                                        <small
+                                                            class="text-muted">{{ Str::limit($area->description, 50) }}</small>
                                                     @else
-                                                        <span class="badge bg-secondary">Inactive</span>
+                                                        -
                                                     @endif
                                                 </td>
                                             </tr>
@@ -132,31 +118,22 @@
 
                             <!-- Area Details Cards (Optional) -->
                             <div class="row mt-3">
-                                @foreach ($division->areas->sortBy('process_order') as $area)
+                                @foreach ($division->areas as $area)
                                     <div class="col-md-6 mb-3">
                                         <div class="card border">
                                             <div class="card-body">
                                                 <h6 class="card-title">
                                                     {{ $area->name }}
-                                                    @if ($area->process_order)
-                                                        <span class="badge bg-secondary float-end">Order:
-                                                            {{ $area->process_order }}</span>
+                                                    @if ($area->max_operator)
+                                                        <span class="badge bg-info float-end">
+                                                            <i class="bi bi-people"></i> {{ $area->max_operator }}
+                                                            operators
+                                                        </span>
                                                     @endif
                                                 </h6>
                                                 @if ($area->description)
                                                     <p class="card-text text-muted small">{{ $area->description }}</p>
                                                 @endif
-                                                <div class="row small">
-                                                    <div class="col-6">
-                                                        <strong>Capacity:</strong> {{ $area->capacity ?? '-' }}<br>
-                                                        <strong>Operators:</strong> {{ $area->operator_count ?? '-' }}
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <strong>Duration:</strong>
-                                                        {{ $area->duration ? $area->duration . ' min' : '-' }}<br>
-                                                        <strong>Equipment:</strong> {{ $area->equipment ?? '-' }}
-                                                    </div>
-                                                </div>
                                                 @if ($area->foreman)
                                                     <div class="mt-2">
                                                         <span class="badge bg-primary">

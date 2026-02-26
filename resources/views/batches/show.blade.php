@@ -283,7 +283,6 @@
                                                             <small class="text-muted">
                                                                 @if ($wip->step == 'quality_check')
                                                                     <i class="bi bi-shield-check"></i> Quality Check
-
                                                                 @else
                                                                     <i class="bi bi-gear"></i> Process
                                                                 @endif
@@ -463,36 +462,59 @@
                                     <table class="table" id="table1">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Process</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actual</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                                {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th> --}}
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Process</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Duration</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Plan</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Actual</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Qty</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Status</th>
+                                                <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="">
-                                            @foreach($batch->productionSchedules as $schedule)
-                                                <tr class="hover:bg-gray-50">
+                                            @forelse ($batch->productionSchedules as $schedule)
+                                                <tr
+                                                    class="hover:bg-gray-50 {{ $schedule->is_urgent == 1 ? 'bg-warning' : '' }}">
                                                     <td class="px-6 py-4">
-                                                        <div class="font-medium text-gray-900">{{ $schedule->getProcessLabel() }}</div>
+                                                        <div class="font-medium text-gray-900">
+                                                            {{ $schedule->getProcessLabel() }}</div>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
-                                                        {{ $schedule->duration_weeks }} week{{ $schedule->duration_weeks > 1 ? 's' : '' }}
+                                                        {{ $schedule->duration_weeks }}
+                                                        week{{ $schedule->duration_weeks > 1 ? 's' : '' }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <div class="text-sm">
-                                                            <div class="font-medium">{{ $schedule->plan_start_date->format('d M Y') }}</div>
-                                                            <div class="text-gray-500">to {{ $schedule->plan_end_date->format('d M Y') }}</div>
+                                                            <div class="font-medium">
+                                                                {{ $schedule->plan_start_date->format('d M Y') }}</div>
+                                                            <div class="text-gray-500">to
+                                                                {{ $schedule->plan_end_date->format('d M Y') }}</div>
                                                         </div>
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        @if($schedule->actual_start_date)
+                                                        @if ($schedule->actual_start_date)
                                                             <div class="text-sm">
-                                                                <div class="font-medium">{{ $schedule->actual_start_date->format('d M Y') }}</div>
-                                                                @if($schedule->actual_end_date)
-                                                                    <div class="text-gray-500">to {{ $schedule->actual_end_date->format('d M Y') }}</div>
+                                                                <div class="font-medium">
+                                                                    {{ $schedule->actual_start_date->format('d M Y') }}
+                                                                </div>
+                                                                @if ($schedule->actual_end_date)
+                                                                    <div class="text-gray-500">to
+                                                                        {{ $schedule->actual_end_date->format('d M Y') }}
+                                                                    </div>
                                                                 @else
                                                                     <div class="text-blue-600">In Progress...</div>
                                                                 @endif
@@ -504,8 +526,9 @@
                                                     <td class="px-6 py-4">
                                                         <div class="text-sm">
                                                             <div>Plan: {{ number_format($schedule->plan_qty) }}</div>
-                                                            @if($schedule->actual_qty)
-                                                                <div class="text-gray-600">Actual: {{ number_format($schedule->actual_qty) }}</div>
+                                                            @if ($schedule->actual_qty)
+                                                                <div class="text-gray-600">Actual:
+                                                                    {{ number_format($schedule->actual_qty) }}</div>
                                                             @endif
                                                         </div>
                                                     </td>
@@ -518,18 +541,43 @@
                                                                 'delayed' => 'bg-red-100 text-red-800',
                                                             ];
                                                         @endphp
-                                                        <span class="px-2 py-1 text-xs font-semibold rounded {{ $scheduleStatusColors[$schedule->status] ?? '' }}">
+                                                        <span
+                                                            class="px-2 py-1 text-xs font-semibold rounded {{ $scheduleStatusColors[$schedule->status] ?? '' }}">
                                                             {{ ucfirst(str_replace('_', ' ', $schedule->status)) }}
                                                         </span>
-                                                        @if($schedule->isDelayed())
+                                                        @if ($schedule->isDelayed())
                                                             <div class="text-xs text-red-600 mt-1">
                                                                 +{{ $schedule->getDelayDays() }} days delay
                                                             </div>
                                                         @endif
                                                     </td>
-
+                                                    <td>
+                                                        {{-- jika status actual_start_date & actual end date masih kosong dan status selain completed, maka muncul button warning --}}
+                                                        @if ($schedule->plan_start_date < now() && $schedule->status != 'completed' && $schedule->is_urgent == 0)
+                                                            {{-- <a href="#" class="btn btn-warning btn-sm"><i
+                                                                    class="bi bi-exclamation-triangle"></i></a> --}}
+                                                            <form
+                                                                action="{{ route('production-schedules.update-urgent', $schedule->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="is_urgent"
+                                                                    value="{{ $schedule->is_urgent ? 0 : 1 }}">
+                                                                <button type="submit" class="btn btn-warning btn-sm"
+                                                                    onclick="return confirm('Are you sure you want to update this schedule?')">
+                                                                    <i class="bi bi-exclamation-triangle"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4">
+                                                        This batch has not been scheduled yet.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
@@ -547,18 +595,20 @@
                                     <i class="bi bi-arrow-left"></i> Back to List
                                 </a>
                                 <div>
-                                    <a href="{{ route('batches.edit', $batch->id) }}" class="btn btn-warning">
-                                        <i class="bi bi-pencil"></i> Edit Batch
-                                    </a>
-                                    <form action="{{ route('batches.destroy', $batch->id) }}" method="POST"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Delete this batch and all WIP tracking records?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </button>
-                                    </form>
+                                    @if ($batch->status == 'pending')
+                                        <a href="{{ route('batches.edit', $batch->id) }}" class="btn btn-warning">
+                                            <i class="bi bi-pencil"></i> Edit Batch
+                                        </a>
+                                        <form action="{{ route('batches.destroy', $batch->id) }}" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Delete this batch and all WIP tracking records?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -641,13 +691,14 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary" onclick="printBatchReport()">
+                                <a target="_blank" class="btn btn-outline-primary"
+                                    href="{{ route('batches.export-pdf', $batch) }}">
                                     <i class="bi bi-printer"></i> Print Report
-                                </button>
-                                <a href="{{ route('batches.export-single', $batch->id) }}"
+                                </a>
+                                {{-- <a href="{{ route('batches.export-single', $batch->id) }}"
                                     class="btn btn-outline-success">
                                     <i class="bi bi-file-earmark-excel"></i> Export Data
-                                </a>
+                                </a> --}}
                                 <button class="btn btn-outline-info" onclick="refreshStatus()">
                                     <i class="bi bi-arrow-clockwise"></i> Refresh Status
                                 </button>
@@ -712,9 +763,6 @@
                 });
         }
 
-        function printBatchReport() {
-            window.print();
-        }
 
         function refreshStatus() {
             location.reload();

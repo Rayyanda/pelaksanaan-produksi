@@ -16,13 +16,8 @@ return new class extends Migration
             $table->foreignId('division_id')->constrained('divisions')->cascadeOnDelete();
             $table->foreignId('foreman_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('name');
-            $table->integer('capacity')->nullable()->comment('kapasitas produksi per durasi kerja dalam menit');
-            $table->integer('operator_count')->nullable()->commment('jumlah operator');
-            $table->integer('duration')->nullable()->commment('durasi produksi per unit dalam menit');
-            $table->boolean('is_active')->default(true);
+            $table->integer('max_operator')->nullable()->comment('jumlah operator maksimal yang tersedia');
             $table->text('description')->nullable()->comment('deskripsi detail area/proses');
-            $table->integer('process_order')->nullable()->comment('urutan dalam workflow produksi');
-            $table->string('equipment')->nullable()->comment('peralatan/mesin yang digunakan');
             $table->softDeletes();
             $table->timestamps();
         });

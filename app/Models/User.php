@@ -54,7 +54,8 @@ class User extends Authenticatable
         return $this->role === 'division_production_manager' && $this->divisions()->where('division_id', $divisionId)->exists();
     }
 
-    public function canManagePoProduction(){
+    public function canManagePoProduction()
+    {
         return in_array($this->role, ['ppc', 'admin']);
     }
 
@@ -89,9 +90,14 @@ class User extends Authenticatable
         return $this->role === 'operator';
     }
 
+    public function isForeman()
+    {
+        return $this->role === 'foreman';
+    }
+
     public function getRoleBadgeColorAttribute()
     {
-        return match($this->role) {
+        return match ($this->role) {
             'admin' => 'danger',
             'ppc' => 'primary',
             'supervisor produksi' => 'warning',
@@ -128,17 +134,17 @@ class User extends Authenticatable
 
     public function canViewPO()
     {
-        return in_array($this->role,['admin','ppc','supervisor produksi']);
+        return in_array($this->role, ['admin', 'ppc', 'supervisor produksi']);
     }
 
     public function canCreatePO()
     {
-        return in_array($this->role,['admin','ppc']);
+        return in_array($this->role, ['admin', 'ppc']);
     }
 
     public function canEditPO()
     {
-        return in_array($this->role,['admin','ppc']);
+        return in_array($this->role, ['admin', 'ppc']);
     }
 
     public function canViewWipTracking()
@@ -175,6 +181,4 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
-
-
 }

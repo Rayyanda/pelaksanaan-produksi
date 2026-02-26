@@ -29,6 +29,7 @@ return new class extends Migration
 
             $table->enum('status', ['planned', 'in_progress', 'completed', 'delayed'])->default('planned');
             $table->text('notes')->nullable();
+            $table->boolean('is_urgent')->default(false);
             $table->timestamps();
         });
     }

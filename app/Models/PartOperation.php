@@ -34,6 +34,18 @@ class PartOperation extends Model
         return $this->belongsTo(Division::class, 'division_id');
     }
 
+    public function batchOperations()
+    {
+        return $this->hasMany(BatchOperation::class);
+    }
+
+    /**
+     * Get the process for this operation.
+     */
+    public function process()
+    {
+        return $this->hasOne(PartProcess::class, 'part_operation_id');
+    }
     public function area()
     {
         return $this->belongsTo(Area::class, 'area_id');
@@ -49,6 +61,13 @@ class PartOperation extends Model
     public function getWipForBatch($batchId)
     {
         return $this->wipTrackings()
+            ->where('batch_id', $batchId)
+            ->first();
+    }
+
+    public function getWipForBatchOperation($batchId)
+    {
+        return $this->batchOperations()
             ->where('batch_id', $batchId)
             ->first();
     }

@@ -77,7 +77,7 @@
                         </li>
 
                         @if (auth()->user()->isAdmin() || auth()->user()->isPPC() || auth()->user()->isSupervisor())
-                        <li class="sidebar-title">Masters</li>
+                            <li class="sidebar-title">Masters</li>
                         @endif
 
                         @if (auth()->user()->isAdmin())
@@ -90,12 +90,13 @@
                             </li>
                         @endif
 
-                        {{-- PO Production --}}
+                        {{-- Production Calendars --}}
                         @if (auth()->user()->isAdmin() || auth()->user()->isPPC())
-                            <li class="sidebar-item {{ request()->routeIs('po-productions.*') ? 'active' : '' }} ">
-                                <a href="{{ route('po-productions.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-building-fill-gear"></i>
-                                    <span>PO Production</span>
+                            <li
+                                class="sidebar-item {{ request()->routeIs('production_calendars.*') ? 'active' : '' }} ">
+                                <a href="{{ route('production_calendars.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-calendar"></i>
+                                    <span>Production Calendars</span>
                                 </a>
                             </li>
                         @endif
@@ -120,6 +121,18 @@
                             </li>
                         @endif
 
+                        {{-- PO Production --}}
+                        @if (auth()->user()->isAdmin() || auth()->user()->isPPC())
+                            <li class="sidebar-item {{ request()->routeIs('po-productions.*') ? 'active' : '' }} ">
+                                <a href="{{ route('po-productions.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-building-fill-gear"></i>
+                                    <span>PO Production</span>
+                                </a>
+                            </li>
+                        @endif
+
+
+
                         @if (auth()->user()->isAdmin() || auth()->user()->isSupervisor() || auth()->user()->isPPC())
                             <li class="sidebar-title">Monitoring</li>
 
@@ -134,7 +147,7 @@
                             {{-- Batches Timeline --}}
                             <li class="sidebar-item {{ request()->routeIs('batches.timeline') ? 'active' : '' }} ">
                                 <a href="{{ route('batches.timeline') }}" class='sidebar-link'>
-                                    <i class="bi bi-box-seam"></i>
+                                    <i class="bi bi-calendar-check-fill"></i>
                                     <span>Batches Timeline</span>
                                 </a>
                             </li>
@@ -329,7 +342,8 @@
                                     <div class="user-menu d-flex">
                                         <div class="user-name text-end me-3">
                                             <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
-                                            <p class="mb-0 text-sm text-gray-600">{{ ucfirst(auth()->user()->role) }}</p>
+                                            <p class="mb-0 text-sm text-gray-600">{{ ucfirst(auth()->user()->role) }}
+                                            </p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <div class="avatar avatar-md">
@@ -401,7 +415,7 @@
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
             }).then((result) => {
-                if(result.isConfirmed){
+                if (result.isConfirmed) {
                     App.ajax('{{ route('logout') }}', 'POST', new FormData(this)).then(response => {
                         Swal.fire({
                             title: 'Berhasil!',

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date('end_date');
             $table->string('activity')->comment('nama libur/event');
             $table->enum('day_type', ['mass leave', 'holiday'])->default('holiday');
-            $table->integer('working_hours')->default(8)->comment('jam kerja hari itu');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('matl_req', 15, 2)->nullable();
             $table->text('deoxidation')->nullable();
             $table->integer('comp_per_mould')->nullable();
-            $table->integer('target_per_week_qty_waxing')->nullable();
+            $table->integer('target_qty_waxing')->nullable();
             $table->integer('target_qty_mould_room')->nullable();
             $table->integer('target_qty_melting')->nullable();
             $table->integer('target_qty_heat_treatment')->nullable();

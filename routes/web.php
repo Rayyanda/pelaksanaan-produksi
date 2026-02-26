@@ -16,7 +16,7 @@ use App\Http\Controllers\PartOperationController;
 use App\Http\Controllers\DivisionProductionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WipTrackingController;
-
+use App\Http\Controllers\ProductionScheduleController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -95,7 +95,18 @@ Route::middleware(['auth'])->group(function () {
     //part internal
     Route::resource('part-internals', PartInternalController::class);
 
+    // Custom route for storing part with operations
+    Route::post('part-internals/store-with-operations', [PartInternalController::class, 'storeWithOperations'])
+        ->name('part-internals.store-with-operations');
+
+    // Custom route for updating part with operations
+    Route::put('part-internals/{partInternal}/update-with-operations', [PartInternalController::class, 'updateWithOperations'])
+        ->name('part-internals.update-with-operations');
+
     /*
+
+    
+
 |--------------------------------------------------------------------------
 | WIP Trackings Routes
 |--------------------------------------------------------------------------
@@ -165,14 +176,26 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('po-productions/{id}/force-delete', [PoProductionController::class, 'forceDelete'])->name('po-productions.force-delete');
     Route::get('po-productions-export', [PoProductionController::class, 'export'])->name('po-productions.export');
 
-    Route::get('/batches/timeline',[App\Http\Controllers\BatchController::class,'batchesTimeline'])->name('batches.timeline');
+    Route::get('/batches/timeline', [App\Http\Controllers\BatchController::class, 'batchesTimeline'])->name('batches.timeline');
 
     //batch routes
     Route::resource('batches', App\Http\Controllers\BatchController::class);
+    Route::patch('batches/{batch}/approve', [App\Http\Controllers\BatchController::class, 'approve'])->name('batches.approve');
     //export & export single
-    Route::get('batches-export', [App\Http\Controllers\BatchController::class, 'export'])->name('batches.export');
+    Route::get('batches-export-pdf/{batch}', [App\Http\Controllers\BatchController::class, 'exportPDF'])->name('batches.export-pdf');
     Route::get('batches/{batch}/export-single', [App\Http\Controllers\BatchController::class, 'exportSingle'])->name('batches.export-single');
 
+    // Show Schedule Detail (dari database)
+    Route::get('/production-schedules/{batchId}/detail', [ProductionScheduleController::class, 'showDetail'])
+        ->name('production-schedules.detail');
+
+    // Index (opsional - untuk list semua schedules)
+    Route::get('/production-schedules', [ProductionScheduleController::class, 'index'])
+        ->name('production-schedules.index');
+
+    // Update urgent status
+    Route::patch('production-schedules/{id}/update-urgent', [ProductionScheduleController::class, 'updateUrgent'])
+        ->name('production-schedules.update-urgent');
 });
 
 Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function () {
@@ -180,10 +203,13 @@ Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function 
 
 
 
-   
+
 
     //division
     Route::resource('divisions', App\Http\Controllers\DivisionController::class);
+
+    //production calendars
+    Route::resource('production_calendars', App\Http\Controllers\ProductionCalendarController::class);
     // Division API
 
     // Resource routes for Part Operations

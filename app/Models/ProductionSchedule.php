@@ -20,6 +20,7 @@ class ProductionSchedule extends Model
         'actual_qty',
         'status',
         'notes',
+        'is_urgent',
     ];
 
     protected $casts = [

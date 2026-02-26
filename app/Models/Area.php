@@ -7,17 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Area extends Model
 {
     //
+    protected $table = 'areas';
     protected $fillable = [
         'division_id',
         'foreman_id',
         'name',
-        'capacity',
-        'operator_count',
-        'duration',
-        'is_active',
+        'max_operator',
         'description',
-        'process_order',
-        'equipment',
     ];
 
     public function division()

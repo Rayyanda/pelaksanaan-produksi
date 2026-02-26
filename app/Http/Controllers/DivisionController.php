@@ -43,12 +43,8 @@ class DivisionController extends Controller
             'areas' => 'nullable|array',
             'areas.*.name' => 'required|string|max:255',
             'areas.*.foreman_id' => 'nullable|exists:users,id',
-            'areas.*.capacity' => 'nullable|integer|min:0',
-            'areas.*.operator_count' => 'nullable|integer|min:0',
-            'areas.*.duration' => 'nullable|integer|min:0',
+            'areas.*.max_operator' => 'nullable|integer|min:0',
             'areas.*.description' => 'nullable|string',
-            'areas.*.process_order' => 'nullable|integer|min:0',
-            'areas.*.equipment' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
@@ -68,13 +64,8 @@ class DivisionController extends Controller
                     $division->areas()->create([
                         'name' => $areaData['name'],
                         'foreman_id' => $areaData['foreman_id'] ?? null,
-                        'capacity' => $areaData['capacity'] ?? null,
-                        'operator_count' => $areaData['operator_count'] ?? null,
-                        'duration' => $areaData['duration'] ?? null,
+                        'max_operator' => $areaData['max_operator'] ?? null,
                         'description' => $areaData['description'] ?? null,
-                        'process_order' => $areaData['process_order'] ?? null,
-                        'equipment' => $areaData['equipment'] ?? null,
-                        'is_active' => true,
                     ]);
                 }
             }
@@ -103,7 +94,7 @@ class DivisionController extends Controller
     public function edit($divisionId)
     {
         $division = Division::with('areas')->findOrFail($divisionId);
-        $users = User::where('is_active', true)->get();
+        $users = User::where('is_active', true)->where('role', 'foreman')->get();
         return view('divisions.edit', compact('division', 'users'));
     }
 
@@ -121,12 +112,8 @@ class DivisionController extends Controller
             'areas.*.id' => 'nullable|exists:areas,id',
             'areas.*.name' => 'required|string|max:255',
             'areas.*.foreman_id' => 'nullable|exists:users,id',
-            'areas.*.capacity' => 'nullable|integer|min:0',
-            'areas.*.operator_count' => 'nullable|integer|min:0',
-            'areas.*.duration' => 'nullable|integer|min:0',
+            'areas.*.max_operator' => 'nullable|integer|min:0',
             'areas.*.description' => 'nullable|string',
-            'areas.*.process_order' => 'nullable|integer|min:0',
-            'areas.*.equipment' => 'nullable|string|max:255',
             'deleted_areas' => 'nullable|array',
             'deleted_areas.*' => 'exists:areas,id',
         ]);
@@ -162,12 +149,8 @@ class DivisionController extends Controller
                             $area->update([
                                 'name' => $areaData['name'],
                                 'foreman_id' => $areaData['foreman_id'] ?? null,
-                                'capacity' => $areaData['capacity'] ?? null,
-                                'operator_count' => $areaData['operator_count'] ?? null,
-                                'duration' => $areaData['duration'] ?? null,
+                                'max_operator' => $areaData['max_operator'] ?? null,
                                 'description' => $areaData['description'] ?? null,
-                                'process_order' => $areaData['process_order'] ?? null,
-                                'equipment' => $areaData['equipment'] ?? null,
                             ]);
                         }
                     } else {
@@ -175,13 +158,8 @@ class DivisionController extends Controller
                         $division->areas()->create([
                             'name' => $areaData['name'],
                             'foreman_id' => $areaData['foreman_id'] ?? null,
-                            'capacity' => $areaData['capacity'] ?? null,
-                            'operator_count' => $areaData['operator_count'] ?? null,
-                            'duration' => $areaData['duration'] ?? null,
+                            'max_operator' => $areaData['max_operator'] ?? null,
                             'description' => $areaData['description'] ?? null,
-                            'process_order' => $areaData['process_order'] ?? null,
-                            'equipment' => $areaData['equipment'] ?? null,
-                            'is_active' => true,
                         ]);
                     }
                 }
