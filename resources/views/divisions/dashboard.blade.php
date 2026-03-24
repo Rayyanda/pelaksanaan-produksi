@@ -222,6 +222,8 @@
                                                     </div>
                                                 @endif
 
+                                                Area : {{ $wip->partOperation->area->name }}
+
                                                 <div class="d-grid gap-2">
                                                     @if ($wip->status == 'waiting')
                                                         <button class="btn btn-primary btn-sm"
@@ -308,6 +310,8 @@
                                                         <small>{{ Str::limit($wip->operation_notes, 100) }}</small>
                                                     </div>
                                                 @endif
+                                                Area :
+                                                {{ $wip->partOperation->area->name }}
 
                                                 <div class="d-grid gap-2">
                                                     @if ($wip->status == 'waiting')

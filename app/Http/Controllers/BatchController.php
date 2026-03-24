@@ -51,14 +51,14 @@ class BatchController extends Controller
 
         // Sorting
         $sortBy = $request->get('sort_by', 'target_completed');
-        $order = $request->get('order', 'desc');
+        $order = $request->get('order', 'asc');
 
         $query->orderBy($sortBy, $order);
 
         $baseQuery = clone $query;
 
         $pendingBatches = (clone $baseQuery)->where('status', 'pending')->get();
-        $inProgressBatches = (clone $baseQuery)->where('status', 'in_progress')->get();
+        $inProgressBatches = (clone $baseQuery)->where('status', 'in_progress')->orderBy('target_completed', 'asc')->get();
         $completedBatches = (clone $baseQuery)->where('status', 'completed')->get();
         $onHoldBatches = (clone $baseQuery)->where('status', 'on_hold')->get();
         $cancelledBatches = (clone $baseQuery)->where('status', 'cancelled')->get();

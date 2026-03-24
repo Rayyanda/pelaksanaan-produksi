@@ -111,6 +111,10 @@ class WipTracking extends Model
 
         if (!$nextOperation) {
             // No next operation, this is the last one
+            //update batch status to complete
+            $this->batch->update([
+                'status' => 'completed'
+            ]);
             return null;
         }
 
