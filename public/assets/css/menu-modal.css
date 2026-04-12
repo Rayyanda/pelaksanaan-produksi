@@ -168,6 +168,28 @@
    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
 }
 
+.accounting{
+    background: linear-gradient(135deg, #004d40, #00695c);
+}
+.accounting .menu-icon {
+    background: linear-gradient(135deg, #004d40, #00695c);
+}
+
+.exim{
+    background: linear-gradient(135deg, #e65100, #f57f17);
+}
+
+.exim .menu-icon {
+    background: linear-gradient(135deg, #e65100, #f57f17);
+}
+
+.top-management{
+    background: linear-gradient(135deg, #212121, #4a148c);
+}
+.top-management .menu-icon {
+    background: linear-gradient(135deg, #212121, #4a148c);
+}
+
 @media (max-width: 768px) {
     .menu-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('divisions', function (Blueprint $table) {
+        Schema::create('machines', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->string('code')->unique();
+            $table->string('name')->unique();
+            $table->enum('model',['CNC','Manual'])->default('CNC');
+            $table->foreignId('pic_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->enum('status',['active','inactive'])->default('active');
+            $table->softDeletes();
+            $table->index('pic_id');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('divisions');
+        Schema::dropIfExists('machines');
     }
 };

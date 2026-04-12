@@ -110,9 +110,10 @@ class WipTrackingController extends Controller
     /**
      * Start operation (change status to in_progress)
      */
-    public function start(WipTracking $wipTracking)
+    public function start(Request $request,WipTracking $wipTracking)
     {
         try {
+            $step = $request->query('step'); // default ke 'process' kalau tidak ada input
             if (!$wipTracking->canStart()) {
                 return response()->json([
                     'success' => false,
@@ -126,6 +127,16 @@ class WipTrackingController extends Controller
                 'status' => 'in_progress',
                 'started_at' => now()
             ]);
+
+            $now = now();
+
+            // Kalau step process, update machine schedule juga
+            if ($step === 'process' && $wipTracking->machineSchedule) {
+                $wipTracking->machineSchedule->update([
+                    'status'       => 'running',
+                    'actual_start' => $now,
+                ]);
+            }
 
             $wipTracking->batch->markInProgress();
 
@@ -184,11 +195,19 @@ class WipTrackingController extends Controller
             }
 
             DB::beginTransaction();
-
+            $now = now();
             $wipTracking->update([
                 'status' => 'completed',
                 'finished_at' => now()
             ]);
+
+            // Update machine schedule juga
+            if ($wipTracking->machineSchedule) {
+                $wipTracking->machineSchedule->update([
+                    'status'     => 'done',
+                    'actual_end' => $now,
+                ]);
+            }
 
             $newBatchOperation = BatchOperation::create([
                 'batch_id' => $wipTracking->batch_id,

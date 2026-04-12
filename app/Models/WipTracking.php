@@ -23,6 +23,11 @@ class WipTracking extends Model
         'finished_at' => 'date',
     ];
 
+    public function machineSchedule()
+{
+    return $this->hasOne(MachineSchedule::class);
+}
+
     public function partInternal()
     {
         return $this->belongsTo(PartInternal::class, 'part_internal_id');

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') - Metinca</title>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
     <link rel="shortcut icon" href="{{ asset('assets/compiled/svg/favicon.svg') }}" type="image/x-icon">
@@ -109,17 +109,23 @@
                                     <span>Part Internal</span>
                                 </a>
                             </li>
+                            <li class="sidebar-item {{ request()->routeIs('machines.*') ? 'active' : '' }} ">
+                                <a href="{{ route('machines.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-gear"></i>
+                                    <span>Machines</span>
+                                </a>
+                            </li>
                         @endif
 
                         {{-- Part Operations --}}
-                        @if (auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+                        {{-- @if (auth()->user()->isAdmin() || auth()->user()->isSupervisor())
                             <li class="sidebar-item {{ request()->routeIs('part-operations.*') ? 'active' : '' }} ">
                                 <a href="{{ route('part-operations.index') }}" class='sidebar-link'>
                                     <i class="bi bi-list-task"></i>
                                     <span>Part Operations</span>
                                 </a>
                             </li>
-                        @endif
+                        @endif --}}
 
                         {{-- PO Production --}}
                         @if (auth()->user()->isAdmin() || auth()->user()->isPPC())
@@ -145,12 +151,12 @@
                             </li>
 
                             {{-- Batches Timeline --}}
-                            <li class="sidebar-item {{ request()->routeIs('batches.timeline') ? 'active' : '' }} ">
+                            {{-- <li class="sidebar-item {{ request()->routeIs('batches.timeline') ? 'active' : '' }} ">
                                 <a href="{{ route('batches.timeline') }}" class='sidebar-link'>
                                     <i class="bi bi-calendar-check-fill"></i>
                                     <span>Batches Timeline</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             {{-- WIP Trackings --}}
                             <li class="sidebar-item {{ request()->routeIs('wip-trackings.*') ? 'active' : '' }} ">
@@ -164,96 +170,16 @@
                         @if (auth()->user()->isAdmin() || auth()->user()->isOperator() || auth()->user()->isSupervisor())
                             <li class="sidebar-title">Production Process</li>
 
-                            {{-- Wax Room : 1 --}}
-                            @if (auth()->user()->division_id == 1 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.*') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 1) }}" class='sidebar-link'>
-                                        <i class="bi bi-box"></i>
-                                        <span>Wax Room</span>
+                            @foreach ($divisions as $division)
+                                @if(auth()->user()->division_id == $division->id || auth()->user()->isAdmin())
+                                    <li class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') && request()->route('slug') == $division->slug ? 'active' : '' }} ">
+                                        <a href="{{ route('divisions-production.dashboard', $division->slug) }}" class='sidebar-link'>
+                                            <i class="bi bi-building"></i>
+                                        <span>{{ $division->name }}</span>
                                     </a>
                                 </li>
-                            @endif
-
-
-                            {{-- Mould Room : 2 --}}
-                            @if (auth()->user()->division_id == 2 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 2) }}" class='sidebar-link'>
-                                        <i class="bi bi-box-seam"></i>
-                                        <span>Mould Room</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Melting Room : 3 --}}
-                            @if (auth()->user()->division_id == 3 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 3) }}" class='sidebar-link'>
-                                        <i class="bi bi-fire"></i>
-                                        <span>Melting Room</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Heat Treatment : 5 --}}
-                            @if (auth()->user()->division_id == 5 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 5) }}" class='sidebar-link'>
-                                        <i class="bi bi-thermometer-half"></i>
-                                        <span>Heat Treatment</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Cut Off : 4 --}}
-                            @if (auth()->user()->division_id == 4 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 4) }}" class='sidebar-link'>
-                                        <i class="bi bi-scissors"></i>
-                                        <span>Cut Off</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Finishing : 6 --}}
-                            @if (auth()->user()->division_id == 6 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 6) }}" class='sidebar-link'>
-                                        <i class="bi bi-check-circle"></i>
-                                        <span>Finishing</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Machining : 7 --}}
-                            @if (auth()->user()->division_id == 7 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 7) }}" class='sidebar-link'>
-                                        <i class="bi bi-gear"></i>
-                                        <span>Machining</span>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Quality COntrol : 8 --}}
-                            @if (auth()->user()->division_id == 8 || auth()->user()->isAdmin())
-                                <li
-                                    class="sidebar-item {{ request()->routeIs('divisions-production.dashboard') ? 'active' : '' }} ">
-                                    <a href="{{ route('divisions-production.dashboard', 8) }}" class='sidebar-link'>
-                                        <i class="bi bi-check-all"></i>
-                                        <span>Quality COntrol</span>
-                                    </a>
-                                </li>
-                            @endif
-
-
+                                @endif
+                            @endforeach
 
                         @endif
 

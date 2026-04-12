@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Division extends Model
 {
     //
     protected $fillable = [
         'name',
+        'slug',
         'code',
         'description',
         'is_active',
@@ -24,6 +26,9 @@ class Division extends Model
         static::creating(function ($division) {
             if (empty($division->code)) {
                 $division->code = 'DIV-' . strtoupper(substr(uniqid(), -6));
+            }
+            if (empty($division->slug)) {
+                $division->slug = Str::slug($division->name);
             }
         });
     }

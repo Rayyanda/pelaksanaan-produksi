@@ -105,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
 
-    
+
 
 |--------------------------------------------------------------------------
 | WIP Trackings Routes
@@ -151,7 +151,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('divisions')->name('divisions-production.')->group(function () {
-        Route::get('/{divisionId}/dashboard', [DivisionProductionController::class, 'dashboard'])
+        Route::get('/{slug}/dashboard', [DivisionProductionController::class, 'dashboard'])
             ->name('dashboard');
 
         // Get WIP summary for division
@@ -166,6 +166,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{divisionId}/performance-metrics', [DivisionProductionController::class, 'performanceMetrics'])
             ->name('performance-metrics');
     });
+
+    //machines management
+    Route::resource('machines', App\Http\Controllers\MachineController::class);
+
+    Route::post('/wip-trackings/{wipTracking}/assign-machine', [DivisionProductionController::class, 'assignToMachine']);
 
 
     Route::resource('po-productions', PoProductionController::class);
@@ -200,10 +205,6 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function () {
     //admin routes here
-
-
-
-
 
     //division
     Route::resource('divisions', App\Http\Controllers\DivisionController::class);
@@ -252,6 +253,8 @@ Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->group(function 
         Route::post('reorder/{partId}', [PartOperationController::class, 'reorder'])
             ->name('reorder');
     });
+
+
 
     //users managemtent
     Route::resource('users', App\Http\Controllers\UserController::class);

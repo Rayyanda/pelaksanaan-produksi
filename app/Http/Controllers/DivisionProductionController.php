@@ -6,10 +6,20 @@ use App\Models\Division;
 use App\Models\WipTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Services\DivisionProductionService;
+use App\Models\Machine;
+use App\Models\MachineSchedule;
 use Exception;
 
 class DivisionProductionController extends Controller
 {
+
+    protected $divisionProductionService;
+
+    public function __construct(DivisionProductionService $divisionProductionService)
+    {
+        $this->divisionProductionService = $divisionProductionService;
+    }
     //
     public function index(Request $request, $divisionId)
     {
@@ -19,28 +29,29 @@ class DivisionProductionController extends Controller
         $wipTrackings = WipTracking::whereHas('partOperation', function ($query) use ($divisionId) {
             $query->where('division_id', $divisionId);
         })->where('step', $status)
-          ->with(['partOperation', 'partInternal', 'batch'])
-          ->latest()
-          ->paginate(15);
+            ->with(['partOperation', 'partInternal', 'batch'])
+            ->latest()
+            ->paginate(15);
 
         return view('division-production.index', compact('wipTrackings', 'status', 'divisionId'));
     }
 
+
     /**
      * Display division dashboard.
      */
-    public function dashboard($divisionId)
+    public function dashboard($slug)
     {
         try {
-            $division = Division::findOrFail($divisionId);
+            $division = Division::where('slug', $slug)->firstOrFail();
 
             // Get all WIP trackings for this division
             $allWips = WipTracking::with(['partInternal', 'partOperation', 'batch.productionSchedules'])
-                ->whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
+                ->whereHas('partOperation', function ($q) use ($division) {
+                    $q->where('division_id', $division->id);
                 })
-                ->whereHas('batch', function($q){
-                    $q->orderBy('target_completed','asc');
+                ->whereHas('batch', function ($q) {
+                    $q->orderBy('target_completed', 'asc');
                 }) // Ensure linked to production schedule
                 ->whereIn('status', ['waiting', 'in_progress']) // Exclude completed from main view
                 ->get();
@@ -50,27 +61,52 @@ class DivisionProductionController extends Controller
             $processWips = $allWips->where('step', 'process');
 
             // Get completed WIPs (history)
-            $historyWips = WipTracking::with(['partInternal', 'partOperation', 'batch'])
-                ->whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
-                ->where('status', 'completed')
-                ->orderBy('finished_at', 'desc')
-                ->limit(50) // Last 50 completed
-                ->get();
+            $historyWips = $this->divisionProductionService->getHistoryWips($division->id);
 
             // Calculate statistics
             $stats = [
                 'quality_check' => $qualityCheckWips->count(),
                 'process' => $processWips->count(),
-                'completed_today' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
+                'completed_today' => WipTracking::whereHas('partOperation', function ($q) use ($division) {
+                    $q->where('division_id', $division->id);
                 })
-                ->where('status', 'completed')
-                ->whereDate('finished_at', today())
-                ->count(),
+                    ->where('status', 'completed')
+                    ->whereDate('finished_at', today())
+                    ->count(),
                 'total_wip_qty' => $allWips->sum('wip_qty'),
             ];
+
+            if ($slug == 'machining') {
+                $machines = Machine::with([
+                    'pic',
+                    'machineSchedules' => fn($q) => $q->where('status', '!=', 'done')
+                        ->with(['wipTracking.batch', 'wipTracking.partInternal'])
+                ])
+                    ->where('status', '!=', 'inactive') // tetap tampilkan inactive untuk info
+                    ->orderBy('name')
+                    ->get();
+
+                // Ganti where di atas jadi tanpa filter agar inactive juga tampil di tab machines
+                $machines = Machine::with([
+                    'pic',
+                    'machineSchedules' => fn($q) => $q->where('status', '!=', 'done')
+                        ->with(['wipTracking.batch', 'wipTracking.partInternal'])
+                ])
+                    ->orderBy('name')
+                    ->get();
+
+                $activeMachinesCount = $machines->where('status', 'active')->count();
+
+                return view('machining.dashboard', compact(
+                    'division',
+                    'qualityCheckWips',
+                    'processWips',
+                    'historyWips',
+                    'stats',
+                    'machines',
+                    'activeMachinesCount'
+                ));
+            }
 
             return view('divisions.dashboard', compact(
                 'division',
@@ -79,11 +115,47 @@ class DivisionProductionController extends Controller
                 'historyWips',
                 'stats'
             ));
-
         } catch (Exception $e) {
             Log::error('Error loading division dashboard: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to load division dashboard');
         }
+    }
+
+    // Assign atau reassign WIP ke machine
+    public function assignToMachine(Request $request, WipTracking $wipTracking)
+    {
+        $request->validate([
+            'machine_id'  => 'required|exists:machines,id',
+            'shift_start' => 'required|in:1,2,3',
+            'shift_count' => 'required|integer|min:1|max:3',
+        ]);
+
+        $machine = Machine::findOrFail($request->machine_id);
+
+        if ($machine->status === 'inactive') {
+            return response()->json(['success' => false, 'message' => 'Machine tidak aktif'], 422);
+        }
+
+        // Validasi shift_count tidak melebihi shift_capability machine
+        if ($request->shift_count > (int) $machine->shift_capability) {
+            return response()->json([
+                'success' => false,
+                'message' => "Machine {$machine->name} hanya support maksimal {$machine->shift_capability} shift"
+            ], 422);
+        }
+
+        MachineSchedule::updateOrCreate(
+            ['wip_tracking_id' => $wipTracking->id],
+            [
+                'machine_id'  => $request->machine_id,
+                'assigned_by' => auth()->id(),
+                'shift_start' => $request->shift_start,
+                'shift_count' => $request->shift_count,
+                'status'      => 'queued',
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'WIP berhasil di-assign ke machine']);
     }
 
     /**
@@ -93,32 +165,31 @@ class DivisionProductionController extends Controller
     {
         try {
             $stats = [
-                'waiting' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'waiting' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'waiting')->count(),
 
-                'in_progress' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'in_progress' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'in_progress')->count(),
 
-                'completed_today' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'completed_today' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'completed')
-                  ->whereDate('finished_at', today())
-                  ->count(),
+                    ->whereDate('finished_at', today())
+                    ->count(),
 
-                'completed_this_week' => WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
+                'completed_this_week' => WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })->where('status', 'completed')
-                  ->whereBetween('finished_at', [now()->startOfWeek(), now()->endOfWeek()])
-                  ->count(),
+                    ->whereBetween('finished_at', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->count(),
             ];
 
             return response()->json([
                 'success' => true,
                 'data' => $stats
             ]);
-
         } catch (Exception $e) {
             Log::error('Error fetching division WIP summary: ' . $e->getMessage());
 
@@ -136,7 +207,7 @@ class DivisionProductionController extends Controller
     {
         try {
             $batches = WipTracking::with(['batch.partInternal', 'partOperation'])
-                ->whereHas('partOperation', function($q) use ($divisionId) {
+                ->whereHas('partOperation', function ($q) use ($divisionId) {
                     $q->where('division_id', $divisionId);
                 })
                 ->whereIn('status', ['waiting', 'in_progress'])
@@ -149,7 +220,6 @@ class DivisionProductionController extends Controller
                 'success' => true,
                 'data' => $batches
             ]);
-
         } catch (Exception $e) {
             Log::error('Error fetching active batches: ' . $e->getMessage());
 
@@ -167,9 +237,9 @@ class DivisionProductionController extends Controller
     {
         try {
             // Average completion time (in hours)
-            $completedWips = WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
+            $completedWips = WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                $q->where('division_id', $divisionId);
+            })
                 ->where('status', 'completed')
                 ->whereNotNull('started_at')
                 ->whereNotNull('finished_at')
@@ -188,15 +258,15 @@ class DivisionProductionController extends Controller
             $startOfWeek = now()->startOfWeek();
             $endOfWeek = now()->endOfWeek();
 
-            $totalThisWeek = WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
+            $totalThisWeek = WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                $q->where('division_id', $divisionId);
+            })
                 ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
                 ->count();
 
-            $completedThisWeek = WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
+            $completedThisWeek = WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                $q->where('division_id', $divisionId);
+            })
                 ->where('status', 'completed')
                 ->whereBetween('finished_at', [$startOfWeek, $endOfWeek])
                 ->count();
@@ -204,9 +274,9 @@ class DivisionProductionController extends Controller
             $completionRate = $totalThisWeek > 0 ? round(($completedThisWeek / $totalThisWeek) * 100, 2) : 0;
 
             // Total quantity processed this month
-            $totalQtyThisMonth = WipTracking::whereHas('partOperation', function($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
+            $totalQtyThisMonth = WipTracking::whereHas('partOperation', function ($q) use ($divisionId) {
+                $q->where('division_id', $divisionId);
+            })
                 ->where('status', 'completed')
                 ->whereBetween('finished_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->sum('wip_qty');
@@ -223,7 +293,6 @@ class DivisionProductionController extends Controller
                 'success' => true,
                 'data' => $metrics
             ]);
-
         } catch (Exception $e) {
             Log::error('Error fetching performance metrics: ' . $e->getMessage());
 

@@ -34,7 +34,7 @@
                                         <td>{{ $division->name }}</td>
                                         <td>{{ $division->description }}</td>
                                         <td>
-                                            <span class="badge bg-info">{{ $division->areas_count }} areas</span>
+                                            <span class="badge bg-info">{{ $division->areas->count() }} areas</span>
                                         </td>
                                         <td>
                                             <a href="{{ route('divisions.show', $division->id) }}"
