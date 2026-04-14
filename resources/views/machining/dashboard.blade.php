@@ -39,6 +39,12 @@
             font-size: 1rem;
             padding: 0.5rem 1rem;
         }
+
+        .machine-card {
+            transition: all 0.3s;
+            border: 1px solid #dee2e6;
+        }
+
     </style>
 @endpush
 
@@ -287,7 +293,7 @@
 
                                                 <!-- Machine Assignment Info -->
                                                 @if ($schedule)
-                                                    <div class="alert alert-success py-2 px-3 mb-2">
+                                                    <div class="alert alert-success py-2 px-3 mb-2" role="alert">
                                                         <small>
                                                             <i class="bi bi-cpu"></i>
                                                             <strong>{{ $schedule->machine->name }}</strong>
@@ -319,7 +325,8 @@
                                                             {{ $wip->id }},
                                                             {{ $schedule?->machine_id ?? 'null' }},
                                                             {{ $schedule?->shift_start ?? 'null' }},
-                                                            {{ $schedule?->shift_count ?? 'null' }}
+                                                            {{ $schedule?->shift_count ?? 'null' }},
+                                                            '{{ $schedule?->scheduled_date ?? '' }}'
                                                         )">
                                                         <i class="bi bi-cpu"></i>
                                                         {{ $schedule ? 'Reassign Machine' : 'Assign to Machine' }}
@@ -362,7 +369,7 @@
                                 @forelse($machines as $machine)
                                     <div class="col-md-6 col-lg-4 mb-3">
                                         <div
-                                            class="card h-100 {{ $machine->status == 'inactive' ? 'border-danger opacity-75' : '' }}">
+                                            class="card machnine-card h-100 {{ $machine->status == 'inactive' ? 'border-danger opacity-75' : '' }}">
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                                     <div>
@@ -403,6 +410,8 @@
                                                                         class="badge bg-{{ $ms->status == 'running' ? 'primary' : 'secondary' }} ms-1">
                                                                         {{ ucfirst($ms->status) }}
                                                                     </span>
+                                                                    <br>
+                                                                    Scheduled at : <span class="badge bg-success">{{ \Carbon\Carbon::parse($ms->scheduled_date)->isoFormat('dddd, D MMMM Y') }}</span>
                                                                 </small>
                                                             </div>
                                                         @endforeach
@@ -515,13 +524,19 @@
                     <input type="hidden" id="assignWipId">
 
                     <div class="mb-3">
+                        <label class="form-label fw-bold">Tanggal Jadwal</label>
+                        <input type="date" name="scheduled_date" class="form-control" id="scheduledDate"
+                            min="{{ now()->toDateString() }}">
+                        <small class="text-muted">Pilih tanggal WIP akan diproses di machine</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label fw-bold">Pilih Machine</label>
                         <select class="form-select" id="machineSelect" onchange="onMachineChange(this)">
                             <option value="" data-capability="0">-- Pilih Machine --</option>
                             @foreach ($machines->where('status', 'active') as $machine)
-                                <option value="{{ $machine->id }}" data-capability="{{ $machine->shift_capability }}"
-                                    data-name="{{ $machine->name }}">
-                                    {{ $machine->name }} ({{ $machine->model }}) — max {{ $machine->shift_capability }}
+                                <option value="{{ $machine->id }}" data-capability="{{ $machine->shift_capability }}">
+                                    {{ $machine->name }} ({{ $machine->model }}) — maks. {{ $machine->shift_capability }}
                                     shift
                                     @if ($machine->pic)
                                         | PIC: {{ $machine->pic->name }}
@@ -534,17 +549,11 @@
                     <div class="row" id="shiftFields" style="display:none!important">
                         <div class="col-6">
                             <label class="form-label fw-bold">Shift Mulai</label>
-                            <select class="form-select" id="shiftStart">
-                                <option value="1">Shift 1</option>
-                                <option value="2">Shift 2</option>
-                                <option value="3">Shift 3</option>
-                            </select>
+                            <select class="form-select" id="shiftStart"></select>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold">Jumlah Shift</label>
-                            <select class="form-select" id="shiftCount">
-                                <!-- diisi dinamis oleh JS -->
-                            </select>
+                            <select class="form-select" id="shiftCount"></select>
                             <small class="text-muted" id="shiftCapabilityNote"></small>
                         </div>
                     </div>
@@ -558,13 +567,16 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
     <script>
         // ── Assign Machine ──
-        function openAssignModal(wipId, currentMachineId, currentShiftStart, currentShiftCount) {
+        function openAssignModal(wipId, currentMachineId, currentShiftStart, currentShiftCount, currentDate) {
             document.getElementById('assignWipId').value = wipId;
+            document.getElementById('scheduledDate').value = currentDate || new Date().toISOString().split('T')[0];
+
             const select = document.getElementById('machineSelect');
             select.value = currentMachineId || '';
             onMachineChange(select);
@@ -578,6 +590,7 @@
 
             new bootstrap.Modal(document.getElementById('assignMachineModal')).show();
         }
+
 
         function onMachineChange(select) {
             const capability = parseInt(select.options[select.selectedIndex]?.dataset?.capability || 0);
@@ -611,11 +624,16 @@
         function submitAssign() {
             const wipId = document.getElementById('assignWipId').value;
             const machineId = document.getElementById('machineSelect').value;
+            const scheduledDate = document.getElementById('scheduledDate').value;
             const shiftStart = document.getElementById('shiftStart').value;
             const shiftCount = document.getElementById('shiftCount').value;
 
             if (!machineId) {
                 alert('Pilih machine terlebih dahulu');
+                return;
+            }
+            if (!scheduledDate) {
+                alert('Pilih tanggal jadwal');
                 return;
             }
 
@@ -627,8 +645,9 @@
                     },
                     body: JSON.stringify({
                         machine_id: machineId,
+                        scheduled_date: scheduledDate,
                         shift_start: shiftStart,
-                        shift_count: shiftCount
+                        shift_count: shiftCount,
                     })
                 })
                 .then(r => r.json())

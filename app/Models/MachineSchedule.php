@@ -10,6 +10,7 @@ class MachineSchedule extends Model
     protected $fillable = [
         'machine_id', 'wip_tracking_id', 'assigned_by',
         'status', 'actual_start', 'actual_end', 'notes',
+        'shift_start', 'shift_count', 'scheduled_date',
     ];
 
     protected $casts = [

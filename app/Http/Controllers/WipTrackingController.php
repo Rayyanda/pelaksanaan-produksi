@@ -197,6 +197,7 @@ class WipTrackingController extends Controller
             DB::beginTransaction();
             $now = now();
             $wipTracking->update([
+                'step' => 'done',
                 'status' => 'completed',
                 'finished_at' => now()
             ]);

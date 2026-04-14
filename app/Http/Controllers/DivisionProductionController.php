@@ -125,9 +125,10 @@ class DivisionProductionController extends Controller
     public function assignToMachine(Request $request, WipTracking $wipTracking)
     {
         $request->validate([
-            'machine_id'  => 'required|exists:machines,id',
-            'shift_start' => 'required|in:1,2,3',
-            'shift_count' => 'required|integer|min:1|max:3',
+            'machine_id'     => 'required|exists:machines,id',
+            'scheduled_date' => 'required|date',
+            'shift_start'    => 'required|in:1,2,3',
+            'shift_count'    => 'required|integer|min:1|max:3',
         ]);
 
         $machine = Machine::findOrFail($request->machine_id);
@@ -136,22 +137,22 @@ class DivisionProductionController extends Controller
             return response()->json(['success' => false, 'message' => 'Machine tidak aktif'], 422);
         }
 
-        // Validasi shift_count tidak melebihi shift_capability machine
         if ($request->shift_count > (int) $machine->shift_capability) {
             return response()->json([
                 'success' => false,
-                'message' => "Machine {$machine->name} hanya support maksimal {$machine->shift_capability} shift"
+                'message' => "Machine {$machine->name} hanya support maks. {$machine->shift_capability} shift"
             ], 422);
         }
 
         MachineSchedule::updateOrCreate(
             ['wip_tracking_id' => $wipTracking->id],
             [
-                'machine_id'  => $request->machine_id,
-                'assigned_by' => auth()->id(),
-                'shift_start' => $request->shift_start,
-                'shift_count' => $request->shift_count,
-                'status'      => 'queued',
+                'machine_id'     => $request->machine_id,
+                'assigned_by'    => auth()->id(),
+                'scheduled_date' => $request->scheduled_date,
+                'shift_start'    => $request->shift_start,
+                'shift_count'    => $request->shift_count,
+                'status'         => 'queued',
             ]
         );
 
